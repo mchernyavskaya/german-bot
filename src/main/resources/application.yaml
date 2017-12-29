@@ -1,0 +1,10 @@
+messenger4j:
+  appSecret: ${MESSENGER_APP_SECRET}
+  verifyToken: ${MESSENGER_VERIFY_TOKEN}
+  pageAccessToken: ${MESSENGER_PAGE_ACCESS_TOKEN}
+
+logging:
+  level:
+    ROOT: INFO
+    com.github.messenger4j: INFO
+    tk.germanbot: DEBUG
