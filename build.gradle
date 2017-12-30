@@ -1,4 +1,4 @@
-buildscript {
+    buildscript {
 	ext {
 		kotlinVersion = '1.2.10'
 		springBootVersion = '1.5.9.RELEASE'
@@ -13,6 +13,7 @@ buildscript {
 	}
 }
 
+//apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
@@ -32,10 +33,17 @@ repositories {
 	mavenCentral()
 }
 
-
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
 	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+
+	compile('com.github.messenger4j:messenger4j:0.8.0')
+
+    compile "org.springframework.boot:spring-boot-configuration-processor"
+
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
+
+compileJava.dependsOn(processResources)
+
