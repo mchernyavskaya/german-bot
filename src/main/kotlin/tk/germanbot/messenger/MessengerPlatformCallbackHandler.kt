@@ -93,11 +93,11 @@ class MessengerPlatformCallbackHandler(
 
         logger.debug("Received Webhook verification request - mode: {} | verifyToken: {} | challenge: {}", mode,
                 verifyToken, challenge)
-        try {
-            return ResponseEntity.ok(this.receiveClient.verifyWebhook(mode, verifyToken, challenge))
+        return try {
+            ResponseEntity.ok(this.receiveClient.verifyWebhook(mode, verifyToken, challenge))
         } catch (e: MessengerVerificationException) {
             logger.warn("Webhook verification failed: {}", e.message)
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
+            ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
         }
 
     }
@@ -110,13 +110,13 @@ class MessengerPlatformCallbackHandler(
                        @RequestHeader(SIGNATURE_HEADER_NAME) signature: String): ResponseEntity<Void> {
 
         logger.debug("Received Messenger Platform callback - payload: {} | signature: {}", payload, signature)
-        try {
+        return try {
             this.receiveClient.processCallbackPayload(payload, signature)
             logger.debug("Processed callback payload successfully")
-            return ResponseEntity.status(HttpStatus.OK).build()
+            ResponseEntity.status(HttpStatus.OK).build()
         } catch (e: MessengerVerificationException) {
             logger.warn("Processing of callback payload failed: {}", e.message)
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+            ResponseEntity.status(HttpStatus.FORBIDDEN).build()
         }
 
     }
