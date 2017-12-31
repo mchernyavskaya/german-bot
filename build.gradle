@@ -10,12 +10,14 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-noarg:${kotlinVersion}")
     }
 }
 
 //apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
+apply plugin: "kotlin-noarg"
 apply plugin: 'eclipse'
 
 apply plugin: 'org.springframework.boot'
@@ -45,6 +47,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-configuration-processor"
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.nhaarman:mockito-kotlin:1.5.0')
 }
 
 compileJava.dependsOn(processResources)
