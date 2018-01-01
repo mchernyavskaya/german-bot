@@ -5,7 +5,10 @@ import tk.germanbot.fsm.State
 import tk.germanbot.fsm.Transition
 import tk.germanbot.fsm.isTextMessage
 
-class HelpTransition(val fsnFactory: FsmFactory, val state: State, val helpText: String) : Transition() {
+class HelpTransition(
+        private val fsnFactory: FsmFactory,
+        private val state: State,
+        private val helpText: String) : Transition() {
 
     override fun accept(event: Event) = isTextMessage(event, "?")
 
