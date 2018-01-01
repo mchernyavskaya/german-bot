@@ -25,5 +25,4 @@ class MessengerConfig(@Autowired val props: MessengerProperties) {
         logger.debug("Initializing MessengerSendClient - pageAccessToken: {}", props.pageAccessToken)
         return MessengerPlatform.newSendClientBuilder(props.pageAccessToken).build()
     }
-
 }

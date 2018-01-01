@@ -8,3 +8,9 @@ logging:
     ROOT: INFO
     com.github.messenger4j: INFO
     tk.germanbot: DEBUG
+
+aws:
+  dynamodb:
+    endpoint: http://localhost:8000/
+    accessKey: 123 #${AWS_ACCESS_KEY_ID}
+    secretKey: 456 #${AWS_SECRET_ACCESS_KEY}
