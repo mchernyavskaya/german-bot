@@ -9,22 +9,23 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import tk.germanbot.Application
+import tk.germanbot.IntegrationTestsConfig
 
 
+/***
+ * Add -Djava.library.path=build/libs to run profile in order to execute this test from IDE
+ * (better add to IDEA defaults)
+ */
 @RunWith(SpringJUnit4ClassRunner::class)
 @SpringBootTest(classes = arrayOf(Application::class))
 @WebAppConfiguration
-@ActiveProfiles("local")
-@TestPropertySource(properties = arrayOf(
-        "aws.dynamodb.endpoint=http://localhost:8000/",
-        "aws.dynamodb.accessKey=test1",
-        "aws.dynamodb.secretKey=test231")
-)
+@Import(IntegrationTestsConfig::class)
+@ActiveProfiles("test")
 class TranslationRepositoryIntegrationTest {
     private val EXPECTED_GE = "Hallo"
     private val EXPECTED_EN = "Hello"
