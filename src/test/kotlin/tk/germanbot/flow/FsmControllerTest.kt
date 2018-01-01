@@ -95,7 +95,7 @@ internal class FsmControllerTest{
 
         // User sends an answer
         fsmController.acceptEvent("user1", UserTextMessageEvent("user1", "?"))
-        verify(msgGateway).textMessage("user1", "Send me a quiz text, I'll ask for an answer and store it.")
+        verify(msgGateway).textMessage("user1", "Send me a quiz text, I'll ask for an answer and store it.\n#q - start quiz")
 
         reset(msgGateway)
         reset(quizService)

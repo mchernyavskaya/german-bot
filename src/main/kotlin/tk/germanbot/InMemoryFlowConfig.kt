@@ -4,9 +4,12 @@ import com.github.messenger4j.send.MessengerSendClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import tk.germanbot.flow.AnswerValidationResult
+import tk.germanbot.flow.Correctness
 import tk.germanbot.flow.FsmController
 import tk.germanbot.flow.FsmFactory
 import tk.germanbot.flow.MessageGateway
+import tk.germanbot.flow.Quiz
 import tk.germanbot.flow.QuizService
 import tk.germanbot.flow.StateService
 import tk.germanbot.fsm.State
@@ -51,15 +54,39 @@ class InMemoryStateService : StateService {
 }
 
 class InMemoryQuizService : QuizService {
-
-    data class Quiz(
-            val question: String,
-            val answer: String)
-
     private val quizzes = HashMap<String, ArrayList<Quiz>>()
+
+    override fun checkAnswer(userId: String, quizId: String, answer: String): AnswerValidationResult {
+        val correctAnswer = getAnswer(userId, quizId)
+        return if (answer == correctAnswer)
+            AnswerValidationResult(Correctness.CORRECT)
+        else
+            AnswerValidationResult(Correctness.INCORRECT, correctAnswer)
+    }
+
+    override fun getAnswer(userId: String, quizId: String): String {
+        return if (quizzes[userId] != null) {
+            quizzes[userId]!!
+                    .filter { q -> q.id == quizId }
+                    .map { q -> q.answer }
+                    .first()
+        } else {
+            "zzz..."
+        }
+    }
+
+    override fun getQuestion(userId: String): Quiz {
+        return if (quizzes[userId] != null) {
+            val qq = quizzes[userId]!!
+            val idx = Random().nextInt(qq.size)
+            qq[idx]
+        } else {
+            Quiz("-1", "Yes", "Ja")
+        }
+    }
 
     override fun saveQuiz(userId: String, question: String, answer: String) {
         quizzes.computeIfAbsent(userId, { ArrayList() })
-                .add(Quiz(question, answer))
+                .add(Quiz(UUID.randomUUID().toString(), question, answer))
     }
 }
