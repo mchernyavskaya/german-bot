@@ -18,7 +18,7 @@ open class AddQuizState(
 
     override val transitions: List<Transition>
         get() = listOf(
-                HelpTransition(fsnFactory, this, "Send me an answer to that quiz and I'll store it."),
+                HelpTransition(fsnFactory, this, ""),
                 fsnFactory.createCancelTransition(this),
                 AddAnswerTransition(fsnFactory, this)
                 )
@@ -28,6 +28,8 @@ open class AddQuizState(
 }
 
 class AddAnswerTransition(private val fsnFactory: FsmFactory, private val state: AddQuizState) : Transition() {
+
+    override val helpText = "Send me an answer to that quiz and I'll store it"
 
     override fun accept(event: Event) = event is UserTextMessageEvent
 

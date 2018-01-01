@@ -14,7 +14,7 @@ class ReadyState(
 
     override val transitions: List<Transition>
         get() = listOf(
-                HelpTransition(fsnFactory, this, "Send me a quiz text, I'll ask for an answer and store it."),
+                HelpTransition(fsnFactory, this, ""),
                 AddQuizTransition(fsnFactory, this))
     override val unknownEventTransition: Transition
         get() = fsnFactory.createWtfTransition(this, "What?")

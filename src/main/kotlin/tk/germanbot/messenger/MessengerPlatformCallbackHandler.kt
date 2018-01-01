@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import tk.germanbot.MessengerProperties
 import tk.germanbot.flow.FsmController
-import tk.germanbot.flow.event.UserButton
+import tk.germanbot.flow.event.UserCommand
 import tk.germanbot.flow.event.UserButtonEvent
 import tk.germanbot.flow.event.UserTextMessageEvent
 
@@ -117,7 +117,7 @@ class MessengerPlatformCallbackHandler(
 
             logger.info("Received quick reply for userText '{}' with payload '{}'", messageId, quickReplyPayload)
 
-            UserButton.parse(quickReplyPayload).ifPresent { button ->
+            UserCommand.parse(quickReplyPayload).ifPresent { button ->
                 fsmController.acceptEvent(senderId, UserButtonEvent(senderId, button))
             }
         })

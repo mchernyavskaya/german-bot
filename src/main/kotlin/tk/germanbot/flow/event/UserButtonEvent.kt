@@ -3,20 +3,25 @@ package tk.germanbot.flow.event
 import tk.germanbot.fsm.Event
 import java.util.*
 
-enum class UserButton {
-    CANCEL;
+enum class UserCommand(val textCommand: String) {
+    CANCEL("#cancel");
 
     companion object {
 
-        fun parse(value: String?): Optional<UserButton> =
-                try {
-                    if (value != null) Optional.of(UserButton.valueOf(value)) else Optional.empty()
-                } catch (e: Exception) {
-                    Optional.empty()
-                }
+        fun parse(value: String?): Optional<UserCommand> {
+            if (value == null)
+                return Optional.empty()
+            val trimmedValue = value.trim()
+            return Arrays.stream(values())
+                    .filter { cmd ->
+                        cmd.textCommand.equals(trimmedValue, true)
+                                || cmd.name.equals(trimmedValue, true)
+                    }
+                    .findAny()
+        }
     }
 }
 
 class UserButtonEvent(
         val userId: String,
-        val button: UserButton) : Event()
+        val button: UserCommand) : Event()
