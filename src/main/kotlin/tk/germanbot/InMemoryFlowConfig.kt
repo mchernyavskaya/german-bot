@@ -42,7 +42,7 @@ class InMemoryStateService : StateService {
     private val states = HashMap<String, State>()
 
     override fun getState(userId: String): Optional<State>
-            = Optional.ofNullable(states.get(userId))
+            = Optional.ofNullable(states[userId])
 
     override fun saveState(state: State) {
         states.put(state.stateData.userId, state)
@@ -59,7 +59,7 @@ class InMemoryQuizService : QuizService {
     private val quizzes = HashMap<String, ArrayList<Quiz>>()
 
     override fun saveQuiz(userId: String, question: String, answer: String) {
-        quizzes.computeIfAbsent(userId, { k -> ArrayList() })
+        quizzes.computeIfAbsent(userId, { ArrayList() })
                 .add(Quiz(question, answer))
     }
 }

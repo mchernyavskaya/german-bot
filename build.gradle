@@ -2,9 +2,9 @@ buildscript {
     ext {
         kotlinVersion = '1.2.10'
         springBootVersion = '1.5.9.RELEASE'
-        springDataVersion = 'Hopper-SR10'
+        springDataVersion = 'Ingalls-RELEASE'
         dynamoDbVersion = '1.11.34'
-        springDataDynamoDbVersion = '4.3.1'
+        springDataDynamoDbVersion = '4.5.2'
     }
     repositories {
         mavenCentral()

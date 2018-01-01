@@ -4,7 +4,7 @@ import org.socialsignin.spring.data.dynamodb.repository.EnableScan
 import org.springframework.data.repository.CrudRepository
 
 @EnableScan
-public interface TranslationRepository : CrudRepository<Translation, String> {
+interface TranslationRepository : CrudRepository<Translation, String> {
     fun findOneById(id: String): Translation
 
     override fun findAll(): List<Translation>
