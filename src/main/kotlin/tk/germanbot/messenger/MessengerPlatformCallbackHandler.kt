@@ -1,20 +1,38 @@
 package tk.germanbot.messenger
 
 import com.github.messenger4j.MessengerPlatform
-import com.github.messenger4j.MessengerPlatform.*
+import com.github.messenger4j.MessengerPlatform.CHALLENGE_REQUEST_PARAM_NAME
+import com.github.messenger4j.MessengerPlatform.MODE_REQUEST_PARAM_NAME
+import com.github.messenger4j.MessengerPlatform.SIGNATURE_HEADER_NAME
+import com.github.messenger4j.MessengerPlatform.VERIFY_TOKEN_REQUEST_PARAM_NAME
 import com.github.messenger4j.exceptions.MessengerVerificationException
 import com.github.messenger4j.receive.MessengerReceiveClient
-import com.github.messenger4j.receive.events.*
-import com.github.messenger4j.receive.handlers.*
+import com.github.messenger4j.receive.events.EchoMessageEvent
+import com.github.messenger4j.receive.events.FallbackEvent
+import com.github.messenger4j.receive.events.MessageDeliveredEvent
+import com.github.messenger4j.receive.events.MessageReadEvent
+import com.github.messenger4j.receive.events.QuickReplyMessageEvent
+import com.github.messenger4j.receive.events.TextMessageEvent
+import com.github.messenger4j.receive.handlers.EchoMessageEventHandler
+import com.github.messenger4j.receive.handlers.FallbackEventHandler
+import com.github.messenger4j.receive.handlers.MessageDeliveredEventHandler
+import com.github.messenger4j.receive.handlers.MessageReadEventHandler
+import com.github.messenger4j.receive.handlers.QuickReplyMessageEventHandler
+import com.github.messenger4j.receive.handlers.TextMessageEventHandler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import tk.germanbot.MessengerProperties
 import tk.germanbot.flow.FsmController
-import tk.germanbot.flow.event.UserCommand
 import tk.germanbot.flow.event.UserButtonEvent
+import tk.germanbot.flow.event.UserCommand
 import tk.germanbot.flow.event.UserTextMessageEvent
 
 @RestController

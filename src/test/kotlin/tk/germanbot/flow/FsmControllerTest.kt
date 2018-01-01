@@ -10,8 +10,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.runners.MockitoJUnitRunner
-import tk.germanbot.flow.event.UserCommand
 import tk.germanbot.flow.event.UserButtonEvent
+import tk.germanbot.flow.event.UserCommand
 import tk.germanbot.flow.event.UserTextMessageEvent
 import tk.germanbot.flow.populate.AddQuizState
 import tk.germanbot.fsm.State

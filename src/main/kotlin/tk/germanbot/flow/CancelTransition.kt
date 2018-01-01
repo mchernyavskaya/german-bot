@@ -1,7 +1,7 @@
 package tk.germanbot.flow
 
-import tk.germanbot.flow.event.UserCommand
 import tk.germanbot.flow.event.UserButtonEvent
+import tk.germanbot.flow.event.UserCommand
 import tk.germanbot.flow.event.UserTextMessageEvent
 import tk.germanbot.fsm.Event
 import tk.germanbot.fsm.State

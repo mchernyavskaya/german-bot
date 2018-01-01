@@ -48,6 +48,10 @@ repositories {
     }
 }
 
+springBoot {
+    mainClass = 'tk.germanbot.ApplicationKt'
+}
+
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
