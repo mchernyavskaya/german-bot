@@ -8,6 +8,8 @@ import tk.germanbot.fsm.Transition
 
 class AddQuizTransition(val fsnFactory: FsmFactory, val state: State) : Transition() {
 
+    override val helpText = "Send me a quiz text, I'll ask for an answer and store it."
+
     override fun accept(event: Event) = event is UserTextMessageEvent
 
     override fun follow(event: Event): State {

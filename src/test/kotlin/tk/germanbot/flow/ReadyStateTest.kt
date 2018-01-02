@@ -6,8 +6,6 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.junit.Test
-
-import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.mockito.runners.MockitoJUnitRunner
 import tk.germanbot.flow.event.UserTextMessageEvent

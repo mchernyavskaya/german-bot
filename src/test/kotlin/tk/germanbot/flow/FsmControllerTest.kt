@@ -10,8 +10,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.runners.MockitoJUnitRunner
-import tk.germanbot.flow.event.UserButton
 import tk.germanbot.flow.event.UserButtonEvent
+import tk.germanbot.flow.event.UserCommand
 import tk.germanbot.flow.event.UserTextMessageEvent
 import tk.germanbot.flow.populate.AddQuizState
 import tk.germanbot.fsm.State
@@ -66,7 +66,7 @@ internal class FsmControllerTest{
         whenever(stateService.getState(any())).thenReturn(Optional.of(savedState))
 
         // User sends Cancel
-        fsmController.acceptEvent("user1", UserButtonEvent("user1", UserButton.CANCEL))
+        fsmController.acceptEvent("user1", UserButtonEvent("user1", UserCommand.CANCEL))
         verify(msgGateway).textMessage("user1", "Ok, forget.")
         argumentCaptor<State>().apply {
             verify(stateService).saveState(capture())
@@ -88,4 +88,31 @@ internal class FsmControllerTest{
         assertThat((savedState as AddQuizState).stateData.userText).isEqualTo("some quiz")
         return savedState
     }
+
+    @Test
+    fun acceptEventCanHandleHelpTextFlow() {
+        whenever(stateService.getState(any())).thenReturn(Optional.empty())
+
+        // User sends an answer
+        fsmController.acceptEvent("user1", UserTextMessageEvent("user1", "?"))
+        verify(msgGateway).textMessage("user1", "Send me a quiz text, I'll ask for an answer and store it.\n#q - start quiz")
+
+        reset(msgGateway)
+        reset(quizService)
+        reset(stateService)
+
+        whenever(stateService.getState(any())).thenReturn(Optional.empty())
+
+        val savedState = userSendsQuiz()
+
+        reset(msgGateway)
+        reset(quizService)
+        reset(stateService)
+
+        whenever(stateService.getState(any())).thenReturn(Optional.of(savedState))
+
+        fsmController.acceptEvent("user1", UserTextMessageEvent("user1", "?"))
+        verify(msgGateway).textMessage("user1", "Send me an answer to that quiz and I'll store it\nor type #cancel")
+    }
+
 }

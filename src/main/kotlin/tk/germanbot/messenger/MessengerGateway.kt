@@ -6,7 +6,7 @@ import com.github.messenger4j.send.MessengerSendClient
 import com.github.messenger4j.send.QuickReply
 import org.slf4j.LoggerFactory
 import tk.germanbot.flow.MessageGateway
-import tk.germanbot.flow.event.UserButton
+import tk.germanbot.flow.event.UserCommand
 
 class MessengerGateway(val sendClient: MessengerSendClient) : MessageGateway {
 
@@ -24,7 +24,7 @@ class MessengerGateway(val sendClient: MessengerSendClient) : MessageGateway {
 
     override fun messageWithCancelButton(userId: String, message: String) {
         val quickReplies = QuickReply.newListBuilder()
-                .addTextQuickReply("Cancel", UserButton.CANCEL.name).toList()
+                .addTextQuickReply("Cancel", UserCommand.CANCEL.name).toList()
                 .build()
 
         try {

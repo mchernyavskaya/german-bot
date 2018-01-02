@@ -1,6 +1,7 @@
 package tk.germanbot.flow
 
 import tk.germanbot.flow.populate.AddQuizTransition
+import tk.germanbot.flow.quiz.StartQuizTransition
 import tk.germanbot.fsm.State;
 import tk.germanbot.fsm.StateData
 import tk.germanbot.fsm.Transition
@@ -14,7 +15,8 @@ class ReadyState(
 
     override val transitions: List<Transition>
         get() = listOf(
-                HelpTransition(fsnFactory, this, "Send me a quiz text, I'll ask for an answer and store it."),
+                HelpTransition(fsnFactory, this, ""),
+                StartQuizTransition(fsnFactory, this),
                 AddQuizTransition(fsnFactory, this))
     override val unknownEventTransition: Transition
         get() = fsnFactory.createWtfTransition(this, "What?")
