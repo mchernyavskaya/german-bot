@@ -30,16 +30,16 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import tk.germanbot.MessengerProperties
-import tk.germanbot.flow.FsmController
-import tk.germanbot.flow.event.UserButtonEvent
-import tk.germanbot.flow.event.UserCommand
-import tk.germanbot.flow.event.UserTextMessageEvent
+import tk.germanbot.activity.ActivityManager
+import tk.germanbot.activity.UserButtonEvent
+import tk.germanbot.activity.UserCommand
+import tk.germanbot.activity.UserTextMessageEvent
 
 @RestController
 @RequestMapping("/webhook")
 class MessengerPlatformCallbackHandler(
         @Autowired private val props: MessengerProperties,
-        @Autowired private val fsmController: FsmController) {
+        @Autowired private val activityManager: ActivityManager) {
 
     companion object {
         private val RESOURCE_URL = "https://raw.githubusercontent.com/fbsamples/messenger-platform-samples/master/node/public"
@@ -120,7 +120,7 @@ class MessengerPlatformCallbackHandler(
             logger.info("Received userText '{}' with text '{}' from user '{}' at '{}'",
                     messageId, messageText, senderId, timestamp)
 
-            fsmController.acceptEvent(senderId, UserTextMessageEvent(senderId, event.text))
+            activityManager.handleEvent(senderId, UserTextMessageEvent(senderId, event.text))
         })
     }
 
@@ -136,7 +136,7 @@ class MessengerPlatformCallbackHandler(
             logger.info("Received quick reply for userText '{}' with payload '{}'", messageId, quickReplyPayload)
 
             UserCommand.parse(quickReplyPayload).ifPresent { button ->
-                fsmController.acceptEvent(senderId, UserButtonEvent(senderId, button))
+                activityManager.handleEvent(senderId, UserButtonEvent(senderId, button))
             }
         })
     }

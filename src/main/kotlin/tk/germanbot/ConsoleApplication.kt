@@ -9,9 +9,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
-import tk.germanbot.flow.FsmController
-import tk.germanbot.flow.MessageGateway
-import tk.germanbot.flow.event.UserTextMessageEvent
+import tk.germanbot.activity.ActivityManager
+import tk.germanbot.service.MessageGateway
+import tk.germanbot.activity.UserTextMessageEvent
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -20,14 +20,14 @@ import java.io.InputStreamReader
 @EnableConfigurationProperties(MessengerProperties::class)
 @Import(ConsoleConfig::class)
 class ConsoleApplication(
-        @Autowired val fsmController: FsmController
+        @Autowired val activityManager: ActivityManager
 ) : CommandLineRunner {
 
     override fun run(vararg args: String) {
         val br = BufferedReader(InputStreamReader(System.`in`))
         do {
             val input = br.readLine()
-            fsmController.acceptEvent("user", UserTextMessageEvent("user", input))
+            activityManager.handleEvent("user", UserTextMessageEvent("user", input))
         } while (input != "quit")
     }
 
@@ -48,7 +48,7 @@ class ConsoleConfig {
             System.out.println(message)
         }
 
-        override fun messageWithCancelButton(userId: String, message: String) {
+        override fun messageWithEndButton(userId: String, message: String) {
             System.out.println(message + " [Cancel]")
         }
 

@@ -4,18 +4,15 @@ import com.github.messenger4j.send.MessengerSendClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import tk.germanbot.flow.AnswerValidationResult
-import tk.germanbot.flow.Correctness
-import tk.germanbot.flow.FsmController
-import tk.germanbot.flow.FsmFactory
-import tk.germanbot.flow.MessageGateway
-import tk.germanbot.flow.Quiz
-import tk.germanbot.flow.QuizService
-import tk.germanbot.flow.StateService
-import tk.germanbot.fsm.State
+import tk.germanbot.activity.ActivityData
+import tk.germanbot.service.StateService
+import tk.germanbot.service.AnswerValidationResult
+import tk.germanbot.service.Correctness
+import tk.germanbot.service.MessageGateway
+import tk.germanbot.service.Quiz
+import tk.germanbot.service.QuizService
 import tk.germanbot.messenger.MessengerGateway
-import java.util.*
-import kotlin.collections.HashMap
+import java.util.UUID
 
 @Configuration
 class InMemoryFlowConfig {
@@ -30,63 +27,61 @@ class InMemoryFlowConfig {
     @Bean
     fun stateService(): StateService = InMemoryStateService()
 
-    @Bean
-    fun fsmController(@Autowired fsmFactory: FsmFactory, @Autowired stateService: StateService): FsmController
-            = FsmController(fsmFactory, stateService)
-
-    @Bean
-    fun fsmFactory(@Autowired msgGateway: MessageGateway, @Autowired quizService: QuizService)
-            = FsmFactory(msgGateway, quizService)
-
 }
 
 class InMemoryStateService : StateService {
+    private val states = HashMap<String, List<ActivityData>>()
 
-    private val states = HashMap<String, State>()
+    override fun getActivityStack(userId: String) = states.getOrElse(userId, { listOf() })
 
-    override fun getState(userId: String): Optional<State>
-            = Optional.ofNullable(states[userId])
-
-    override fun saveState(state: State) {
-        states.put(state.stateData.userId, state)
+    override fun saveActivityStack(userId: String, stack: List<ActivityData>) {
+        states[userId] = stack
     }
 
 }
 
 class InMemoryQuizService : QuizService {
-    private val quizzes = HashMap<String, ArrayList<Quiz>>()
+    private val quizzes = HashMap<String, Quiz>()
 
-    override fun checkAnswer(userId: String, quizId: String, answer: String): AnswerValidationResult {
-        val correctAnswer = getAnswer(userId, quizId)
+    init {
+        quizzes["-1"] = Quiz("-1", "Yes", "Ja")
+        quizzes["-2"] = Quiz("-2", "Father", "Vatter")
+        quizzes["-3"] = Quiz("-3", "Mother", "Mutter")
+    }
+
+    override fun getQuestionIds(userId: String, totalQuestions: Int): List<String> {
+        if (userId == "user") {
+            return listOf("-1", "-2", "-3")
+        }
+        return quizzes.values.map { q -> q.id }.take(totalQuestions)
+    }
+
+    override fun checkAnswer(quizId: String, answer: String): AnswerValidationResult {
+        val correctAnswer = getAnswer(quizId)
         return if (answer == correctAnswer)
             AnswerValidationResult(Correctness.CORRECT)
         else
             AnswerValidationResult(Correctness.INCORRECT, correctAnswer)
     }
 
-    override fun getAnswer(userId: String, quizId: String): String {
-        return if (quizzes[userId] != null) {
-            quizzes[userId]!!
-                    .filter { q -> q.id == quizId }
-                    .map { q -> q.answer }
-                    .first()
+    override fun getAnswer(quizId: String): String {
+        return if (quizzes[quizId] != null) {
+            quizzes[quizId]!!.answer
         } else {
             "zzz..."
         }
     }
 
-    override fun getQuestion(userId: String): Quiz {
-        return if (quizzes[userId] != null) {
-            val qq = quizzes[userId]!!
-            val idx = Random().nextInt(qq.size)
-            qq[idx]
+    override fun getQuiz(quizId: String): Quiz {
+        return if (quizzes.containsKey(quizId)) {
+            quizzes[quizId]!!
         } else {
             Quiz("-1", "Yes", "Ja")
         }
     }
 
-    override fun saveQuiz(userId: String, question: String, answer: String) {
-        quizzes.computeIfAbsent(userId, { ArrayList() })
-                .add(Quiz(UUID.randomUUID().toString(), question, answer))
+    override fun saveQuiz(question: String, answer: String) {
+        val id = UUID.randomUUID().toString()
+        quizzes.put(id, Quiz(id, question, answer))
     }
 }

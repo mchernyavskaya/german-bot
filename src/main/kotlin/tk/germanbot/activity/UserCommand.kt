@@ -1,10 +1,15 @@
-package tk.germanbot.flow.event
+package tk.germanbot.activity
 
-import tk.germanbot.fsm.Event
-import java.util.*
+import java.util.Arrays
+import java.util.Optional
 
 enum class UserCommand(val textCommand: String) {
-    CANCEL("#cancel");
+    END("#end");
+
+    fun eq(str: String): Boolean =
+            UserCommand.parse(str)
+                    .map { cmd -> cmd == this }
+                    .orElse(false)
 
     companion object {
 
@@ -21,7 +26,3 @@ enum class UserCommand(val textCommand: String) {
         }
     }
 }
-
-class UserButtonEvent(
-        val userId: String,
-        val button: UserCommand) : Event()
