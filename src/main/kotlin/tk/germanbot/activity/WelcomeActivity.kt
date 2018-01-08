@@ -6,7 +6,7 @@ import tk.germanbot.service.MessageGateway
 import java.util.UUID
 
 data class WelcomeActivityData(
-        override var userId: String) : ActivityData {
+        override var userId: String = "") : ActivityData {
     var isHelloSaid: Boolean = false
     override var id: String = UUID.randomUUID().toString()
 }

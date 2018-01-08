@@ -14,8 +14,8 @@ import tk.germanbot.service.QuizService
 import java.util.UUID
 
 data class QuizActivityData(
-        override var userId: String,
-        var quizId: String) : ActivityData {
+        override var userId: String = "",
+        var quizId: String = "") : ActivityData {
     override var id: String = UUID.randomUUID().toString()
     var result: Correctness = Correctness.INCORRECT
     var isCancelled = false
@@ -41,7 +41,7 @@ class QuizActivity(
             return false
         }
 
-        if (UserCommand.END.eq(event.message)){
+        if (UserCommand.END.eq(event.message)) {
             data.isCancelled = true
             activityManager.endActivity(this, data)
             return true

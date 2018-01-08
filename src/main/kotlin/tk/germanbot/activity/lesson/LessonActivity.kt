@@ -11,7 +11,7 @@ import tk.germanbot.service.QuizService
 import java.util.UUID
 
 data class LessonActivityData(
-        override var userId: String,
+        override var userId: String = "",
         var desiredQuestions: Int = 5
 ) : ActivityData {
     override var id: String = UUID.randomUUID().toString()
