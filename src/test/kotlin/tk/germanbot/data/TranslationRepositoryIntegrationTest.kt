@@ -28,14 +28,16 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Import(IntegrationTestsConfig::class)
 @ActiveProfiles("test")
 class TranslationRepositoryIntegrationTest {
-    private val EXPECTED_DE = "Hallo"
-    private val EXPECTED_EN = "Hello"
+    private val EXPECTED_Q = "Hallo"
+    private val EXPECTED_A = "Hello"
 
     private var dynamoDBMapper: DynamoDBMapper? = null
     @Autowired
     private val db: AmazonDynamoDB? = null
     @Autowired
-    internal var repository: TranslationRepository? = null
+    internal var repository: QuizRepository? = null
+
+    var hello: Quiz? = null
 
     companion object {
         private var tableCreated: AtomicBoolean = AtomicBoolean(false)
@@ -47,15 +49,14 @@ class TranslationRepositoryIntegrationTest {
         dynamoDBMapper = DynamoDBMapper(db)
         if (!tableCreated.get()) {
             val tableRequest = dynamoDBMapper!!
-                    .generateCreateTableRequest(Translation::class.java)
+                    .generateCreateTableRequest(Quiz::class.java)
             tableRequest.provisionedThroughput = ProvisionedThroughput(1L, 1L)
             db!!.createTable(tableRequest)
             tableCreated.set(true)
         }
         dynamoDBMapper!!.batchDelete(repository!!.findAll())
 
-        val hello = Translation(de = EXPECTED_DE, en = EXPECTED_EN)
-        repository?.save(hello)
+        hello = repository?.save(Quiz(question = EXPECTED_Q, answers = setOf(EXPECTED_A), topics = setOf("A", "B")))
     }
 
     @Test
@@ -63,24 +64,38 @@ class TranslationRepositoryIntegrationTest {
         val result = repository!!.findAll()
         assertTrue("Not empty", result.isNotEmpty())
         assertTrue("Contains item with expected translation",
-                result[0].en == EXPECTED_EN)
+                result[0].question == EXPECTED_Q)
     }
 
     @Test
-    fun findByEnglish() {
-        val result = repository!!.findByEn(EXPECTED_EN)
-        assertTrue("Not empty", result.isNotEmpty())
-        assertTrue("ID Not empty", result[0].id != null)
+    fun findById() {
+        val result = repository!!.findOneById(hello!!.id!!)
+        assertTrue("ID Not empty", result.id != null)
         assertTrue("Contains item with expected translation",
-                result[0].de == EXPECTED_DE)
+                result.question == EXPECTED_Q)
     }
 
     @Test
-    fun findByGerman() {
-        val result = repository!!.findByDe(EXPECTED_DE)
+    fun findByTopicCanContainOne() {
+        val result = repository!!.findByTopicsContaining("A")
         assertTrue("Not empty", result.isNotEmpty())
         assertTrue("ID Not empty", result[0].id != null)
         assertTrue("Contains item with expected translation",
-                result[0].de == EXPECTED_DE)
+                result[0].question == EXPECTED_Q)
+    }
+
+    @Test
+    fun findByTopicCanContainOther() {
+        val result = repository!!.findByTopicsContaining("B")
+        assertTrue("Not empty", result.isNotEmpty())
+        assertTrue("ID Not empty", result[0].id != null)
+        assertTrue("Contains item with expected translation",
+                result[0].question == EXPECTED_Q)
+    }
+
+    @Test
+    fun findByTopicCanContainNone() {
+        val result = repository!!.findByTopicsContaining("C")
+        assertTrue("Empty", result.isEmpty())
     }
 }
