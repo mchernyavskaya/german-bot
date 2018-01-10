@@ -16,7 +16,7 @@ interface ActivityData {
     val userId: String
 }
 
-abstract class Activity<T : ActivityData> {
+abstract class Activity<in T : ActivityData> {
 
     abstract val messageGateway: MessageGateway
 
