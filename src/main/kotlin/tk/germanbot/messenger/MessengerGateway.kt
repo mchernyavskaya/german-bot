@@ -5,8 +5,8 @@ import com.github.messenger4j.exceptions.MessengerIOException
 import com.github.messenger4j.send.MessengerSendClient
 import com.github.messenger4j.send.QuickReply
 import org.slf4j.LoggerFactory
-import tk.germanbot.flow.MessageGateway
-import tk.germanbot.flow.event.UserCommand
+import tk.germanbot.activity.UserCommand
+import tk.germanbot.service.MessageGateway
 
 class MessengerGateway(val sendClient: MessengerSendClient) : MessageGateway {
 
@@ -22,9 +22,9 @@ class MessengerGateway(val sendClient: MessengerSendClient) : MessageGateway {
         }
     }
 
-    override fun messageWithCancelButton(userId: String, message: String) {
+    override fun messageWithEndButton(userId: String, message: String) {
         val quickReplies = QuickReply.newListBuilder()
-                .addTextQuickReply("Cancel", UserCommand.CANCEL.name).toList()
+                .addTextQuickReply("End", UserCommand.END.name).toList()
                 .build()
 
         try {
@@ -41,3 +41,4 @@ class MessengerGateway(val sendClient: MessengerSendClient) : MessageGateway {
     }
 
 }
+
