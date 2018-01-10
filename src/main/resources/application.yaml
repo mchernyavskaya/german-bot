@@ -12,6 +12,19 @@ logging:
 aws:
   dynamodb:
     region: eu-central-1
-    endpoint: http://localhost:8000/
     accessKey: ${AWS_ACCESS_KEY_ID}
     secretKey: ${AWS_SECRET_ACCESS_KEY}
+    readThroughput: 10
+    writeThroughput: 5
+
+spring:
+  profiles:
+    active: dev
+
+---
+spring:
+  profiles: dev
+
+aws:
+  dynamodb:
+    endpoint: http://localhost:8000/

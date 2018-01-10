@@ -3,6 +3,7 @@ package tk.germanbot.data
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput
+import com.amazonaws.services.dynamodbv2.util.TableUtils
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -15,7 +16,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import tk.germanbot.Application
 import tk.germanbot.IntegrationTestsConfig
-import java.util.concurrent.atomic.AtomicBoolean
 
 
 /***
@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @WebAppConfiguration
 @Import(IntegrationTestsConfig::class)
 @ActiveProfiles("test")
-class TranslationRepositoryIntegrationTest {
+class QuizRepositoryIntegrationTest {
     private val EXPECTED_Q = "Hallo"
     private val EXPECTED_A = "Hello"
 
@@ -39,21 +39,15 @@ class TranslationRepositoryIntegrationTest {
 
     var hello: Quiz? = null
 
-    companion object {
-        private var tableCreated: AtomicBoolean = AtomicBoolean(false)
-    }
-
     @Before
     @Throws(Exception::class)
     fun setup() {
         dynamoDBMapper = DynamoDBMapper(db)
-        if (!tableCreated.get()) {
-            val tableRequest = dynamoDBMapper!!
-                    .generateCreateTableRequest(Quiz::class.java)
-            tableRequest.provisionedThroughput = ProvisionedThroughput(1L, 1L)
-            db!!.createTable(tableRequest)
-            tableCreated.set(true)
-        }
+        val tableRequest = dynamoDBMapper!!
+                .generateCreateTableRequest(Quiz::class.java)
+        tableRequest.provisionedThroughput = ProvisionedThroughput(1L, 1L)
+        TableUtils.createTableIfNotExists(db, tableRequest)
+        TableUtils.waitUntilActive(db, QUIZ_TABLE_NANE)
         dynamoDBMapper!!.batchDelete(repository!!.findAll())
 
         hello = repository?.save(Quiz(question = EXPECTED_Q, answers = setOf(EXPECTED_A), topics = setOf("A", "B")))
