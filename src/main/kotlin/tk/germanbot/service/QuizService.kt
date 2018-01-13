@@ -1,5 +1,7 @@
 package tk.germanbot.service
 
+import tk.germanbot.data.Quiz
+
 interface QuizService {
     fun saveQuiz(quiz: String, answer: String)
     fun checkAnswer(quizId: String, answer: String): AnswerValidationResult
@@ -7,11 +9,6 @@ interface QuizService {
     fun getQuiz(questionId: String): Quiz
     fun getQuestionIds(userId: String, totalQuestions: Int): List<String>
 }
-
-data class Quiz(
-        val id :String,
-        val question: String,
-        val answer: String)
 
 enum class Correctness {
     CORRECT,

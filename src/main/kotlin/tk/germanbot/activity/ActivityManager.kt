@@ -3,6 +3,8 @@ package tk.germanbot.activity
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
+import tk.germanbot.activity.add.AddQuizActivity
+import tk.germanbot.activity.add.AddQuizActivityData
 import tk.germanbot.activity.lesson.LessonActivity
 import tk.germanbot.activity.lesson.LessonActivityData
 import tk.germanbot.activity.lesson.QuizActivity
@@ -14,7 +16,8 @@ class ActivityManager(
         @Autowired private val stateService: StateService,
         @Autowired @Lazy private var welcomeActivity: WelcomeActivity,
         @Autowired @Lazy private var lessonActivity: LessonActivity,
-        @Autowired @Lazy private var quizActivity: QuizActivity) {
+        @Autowired @Lazy private var quizActivity: QuizActivity,
+        @Autowired @Lazy private var addQuizActivity: AddQuizActivity) {
 
     fun handleEvent(userId: String, event: Event) {
         val storedStack = stateService.getActivityStack(userId)
@@ -51,6 +54,10 @@ class ActivityManager(
         startActivity(lessonActivity, LessonActivityData(userId))
     }
 
+    fun startAddQuizActivity(userId: String) {
+        startActivity(addQuizActivity, AddQuizActivityData(userId))
+    }
+
     fun startWelcomeActivity(userId: String): ActivityData {
         return startActivity(welcomeActivity, WelcomeActivityData(userId))
     }
@@ -78,6 +85,7 @@ class ActivityManager(
             is QuizActivityData -> quizActivity
             is LessonActivityData -> lessonActivity
             is WelcomeActivityData -> welcomeActivity
+            is AddQuizActivityData -> addQuizActivity
             else -> throw Exception("Unknown activity data: " + data.toString())
         }
     }
