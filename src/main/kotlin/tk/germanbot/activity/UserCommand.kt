@@ -4,7 +4,8 @@ import java.util.Arrays
 import java.util.Optional
 
 enum class UserCommand(val textCommand: String) {
-    END("#end");
+    END("#end"),
+    CANCEL("#cancel");
 
     fun eq(str: String): Boolean =
             UserCommand.parse(str)

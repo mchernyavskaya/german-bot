@@ -64,9 +64,9 @@ class QuizRepositoryIntegrationTest {
     @Test
     fun findById() {
         val result = repository!!.findOneById(hello!!.id!!)
-        assertTrue("ID Not empty", result.id != null)
+        assertTrue("ID Not empty", result!!.id != null)
         assertTrue("Contains item with expected translation",
-                result.question == EXPECTED_Q)
+                result!!.question == EXPECTED_Q)
     }
 
     @Test
@@ -92,4 +92,12 @@ class QuizRepositoryIntegrationTest {
         val result = repository!!.findByTopicsContaining("C")
         assertTrue("Empty", result.isEmpty())
     }
+
+    @Test
+    fun findTop5ByIdGreaterThan() {
+        val result1 = repository!!.findTop5ByIdGreaterThan("random_UUID")
+        val result2 = repository!!.findTop5ByIdLessThan("random_UUID")
+        assertTrue(result1.isNotEmpty() || result2.isNotEmpty())
+    }
+
 }

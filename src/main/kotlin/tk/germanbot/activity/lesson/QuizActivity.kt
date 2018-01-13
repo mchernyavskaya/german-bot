@@ -33,7 +33,7 @@ class QuizActivity(
 
     override fun onStart(data: QuizActivityData) {
         val quiz = quizService.getQuiz(data.quizId)
-        messageGateway.textMessage(data.userId, quiz.question)
+        messageGateway.textMessage(data.userId, quiz.question!!)
     }
 
     override fun onEvent(event: Event, data: QuizActivityData): Boolean {

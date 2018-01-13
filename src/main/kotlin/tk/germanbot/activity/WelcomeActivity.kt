@@ -17,17 +17,24 @@ class WelcomeActivity(
         @Autowired override val messageGateway: MessageGateway
 ) : Activity<WelcomeActivityData>() {
 
-    override val helpText = "#q - start quick session (5 questions)"
+    override val helpText = "#q - start quick session (5 questions)\n" +
+            "#a - add quiz"
 
     override fun onEvent(event: Event, data: WelcomeActivityData): Boolean {
-        if (!data.isHelloSaid) {
-            data.isHelloSaid = true
-            messageGateway.textMessage(data.userId, "Welcome! Type '?' for help")
-            return true
-        }
 
         if (isTextMessage(event, "#q")) {
             activityManager.startLessonActivity(data.userId)
+            return true
+        }
+
+        if (isTextMessage(event, "#a")) {
+            activityManager.startAddQuizActivity(data.userId)
+            return true
+        }
+
+        if (!data.isHelloSaid) {
+            data.isHelloSaid = true
+            messageGateway.textMessage(data.userId, "Welcome! Type '?' for help")
             return true
         }
 
