@@ -22,6 +22,8 @@ data class Quiz(
         @DynamoDBTyped(S)
         var date: Date? = Date(),
         @DynamoDBAttribute
+        var createdBy: String?,
+        @DynamoDBAttribute
         var question: String?,
         @DynamoDBAttribute
         var answers: Set<String>?,
@@ -30,6 +32,7 @@ data class Quiz(
 ) {
     fun validate() {
         if (answers == null || answers!!.isEmpty()) throw EntityValidationException(Quiz::class, "No answers for quiz $id")
+        if (topics == null || topics!!.isEmpty()) throw EntityValidationException(Quiz::class, "No topics for quiz $id")
     }
 }
 

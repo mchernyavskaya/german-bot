@@ -50,7 +50,7 @@ class QuizRepositoryIntegrationTest {
         TableUtils.waitUntilActive(db, QUIZ_TABLE_NANE)
         dynamoDBMapper!!.batchDelete(repository!!.findAll())
 
-        hello = repository?.save(Quiz(question = EXPECTED_Q, answers = setOf(EXPECTED_A), topics = setOf("A", "B")))
+        hello = repository?.save(Quiz(createdBy = "user", question = EXPECTED_Q, answers = setOf(EXPECTED_A), topics = setOf("A", "B")))
     }
 
     @Test

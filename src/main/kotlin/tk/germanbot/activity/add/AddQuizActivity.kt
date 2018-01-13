@@ -29,10 +29,11 @@ class AddQuizActivity(
 ) : Activity<AddQuizActivityData>() {
 
     override val helpText = "Enter the question, answer or:\n" +
-            "#cancel - cancel"
+            "#cancel - cancel\n" +
+            "You can use #some_tag to add tags to question"
 
     override fun onStart(data: AddQuizActivityData) {
-        messageGateway.textMessage(data.userId, "Enter the question:")
+        messageGateway.textMessage(data.userId, "What is the question?")
     }
 
     override fun onEvent(event: Event, data: AddQuizActivityData): Boolean {
@@ -50,10 +51,10 @@ class AddQuizActivity(
         if (data.questionEntered) {
             data.answer = event.message
             messageGateway.textMessage(data.userId, "Added!")
-            quizService.saveQuiz(data.question, data.answer)
+            quizService.saveQuiz(data.userId, data.question, data.answer)
             activityManager.endActivity(this, data)
         } else {
-            messageGateway.textMessage(data.userId, "Ok, enter the answer:")
+            messageGateway.textMessage(data.userId, "Ok, and the answer?")
             data.question = event.message
             data.questionEntered = true
         }
