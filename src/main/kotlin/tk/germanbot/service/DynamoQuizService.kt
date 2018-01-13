@@ -13,10 +13,35 @@ class DynamoQuizService(
         @Autowired private val quizValidator: QuizValidator
 ) : QuizService {
 
-    override fun saveQuiz(question: String, answer: String) {
-        val quiz = Quiz(question = question, answers = setOf(answer), topics = setOf("undefined"))
+    override fun saveQuiz(userId: String, question: String, answer: String) {
+        val (q, topics) = extractTopics(question)
+
+        val answers = answer.split("+")
+                .map(String::trim)
+                .filter(String::isNotBlank)
+                .toSet()
+
+        val quiz = Quiz(createdBy = userId, question = q, answers = answers, topics = topics)
         quiz.validate()
         quizRepo.save(quiz)
+    }
+
+    private data class AnswersTopics(
+            val question: String,
+            val topics: Set<String>)
+
+    private fun extractTopics(question: String): AnswersTopics {
+        val topicRegex = Regex("#(\\w+)")
+
+        val topics = topicRegex.findAll(question)
+                .map { it.groupValues[1] }
+                .filter(String::isNotBlank)
+                .toSet()
+                .let { if (it.isEmpty()) setOf("undefined") else it }
+
+        val q = topicRegex.replace(question, "").trim()
+
+        return AnswersTopics(q, topics)
     }
 
     override fun checkAnswer(quizId: String, answer: String): AnswerValidationResult {
@@ -49,6 +74,6 @@ class DynamoQuizService(
         return mutable
                 .map { q -> q.id!! }
                 .toList()
-   }
+    }
 
 }

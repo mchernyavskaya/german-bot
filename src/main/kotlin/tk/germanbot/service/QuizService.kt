@@ -3,7 +3,7 @@ package tk.germanbot.service
 import tk.germanbot.data.Quiz
 
 interface QuizService {
-    fun saveQuiz(quiz: String, answer: String)
+    fun saveQuiz(userId: String, quiz: String, answer: String)
     fun checkAnswer(quizId: String, answer: String): AnswerValidationResult
     fun getAnswer(quizId: String): String
     fun getQuiz(questionId: String): Quiz

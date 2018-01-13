@@ -53,10 +53,12 @@ class QuizActivity(
                 messageGateway.textMessage(data.userId, "Correct! (y)")
             }
             Correctness.PARTIALLY_CORRECT -> {
-                messageGateway.textMessage(data.userId, "Almost! Answer:\n" + valuation.correctAnswer)
+                messageGateway.textMessage(data.userId, "Almost! Answer:")
+                messageGateway.textMessage(data.userId, valuation.correctAnswer)
             }
             else -> {
-                messageGateway.textMessage(data.userId, ":-( not quite. Answer:\n" + valuation.correctAnswer)
+                messageGateway.textMessage(data.userId, ":-( not quite. Answer:")
+                messageGateway.textMessage(data.userId, valuation.correctAnswer)
             }
         }
         data.result = valuation.result
