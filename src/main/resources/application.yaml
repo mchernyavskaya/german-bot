@@ -28,3 +28,5 @@ spring:
 aws:
   dynamodb:
     endpoint: http://localhost:8000/
+    accessKey: testkey
+    secretKey: testsecret
