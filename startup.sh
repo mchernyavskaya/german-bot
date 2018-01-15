@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-java -jar $(ls app/german-bot-*.jar)
+java -jar -Dspring.profiles.active=live $(ls app/german-bot-*.jar)
