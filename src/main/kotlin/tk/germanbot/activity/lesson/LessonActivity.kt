@@ -8,7 +8,7 @@ import tk.germanbot.activity.ActivityManager
 import tk.germanbot.activity.Event
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
-import java.util.UUID
+import java.util.*
 
 data class LessonActivityData(
         override var userId: String = "",
@@ -30,8 +30,13 @@ class LessonActivity(
     override fun onStart(data: LessonActivityData) {
         data.questionIds = quizService.getQuestionIds(data.userId, data.desiredQuestions)
         data.totalQuestions = data.questionIds.size
-        messageGateway.textMessage(data.userId, "Lets do ${data.totalQuestions} exercises")
-        activityManager.startQuizActivity(data.userId, data.questionIds[0])
+        if (data.totalQuestions > 0) {
+            messageGateway.textMessage(data.userId, "Lets do ${data.totalQuestions} exercises")
+            activityManager.startQuizActivity(data.userId, data.questionIds[0])
+        } else {
+            messageGateway.textMessage(data.userId, "Sorry, we have no questions yet! Please add some.")
+            activityManager.startWelcomeActivity(data.userId)
+        }
     }
 
     override fun onEvent(event: Event, data: LessonActivityData): Boolean {
@@ -39,11 +44,11 @@ class LessonActivity(
     }
 
     override fun onSubActivityFinished(data: LessonActivityData, subActivityData: ActivityData) {
-        if (subActivityData !is QuizActivityData){
+        if (subActivityData !is QuizActivityData) {
             return
         }
 
-        if (subActivityData.isCancelled){
+        if (subActivityData.isCancelled) {
             messageGateway.textMessage(data.userId, "Ok, done ${data.answeredQuestions} of ${data.totalQuestions}")
             activityManager.endActivity(this, data)
             return
@@ -51,7 +56,7 @@ class LessonActivity(
 
         data.answeredQuestions++
         if (data.answeredQuestions < data.totalQuestions) {
-            messageGateway.textMessage(data.userId, "Good, done ${data.answeredQuestions} of ${data.totalQuestions}")
+            messageGateway.textMessage(data.userId, "You have done ${data.answeredQuestions} of ${data.totalQuestions}")
             activityManager.startQuizActivity(data.userId, data.questionIds[data.answeredQuestions])
         } else {
             messageGateway.textMessage(data.userId, "All done!")

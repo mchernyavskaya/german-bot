@@ -34,7 +34,7 @@ abstract class Activity<in T : ActivityData> {
         }
 
         return if (!onEvent(event, data)) {
-            messageGateway.textMessage(data.userId, "What?")
+            messageGateway.textMessage(data.userId, "Who's here? Please type ? for help")
             false
         } else {
             true

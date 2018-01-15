@@ -2,16 +2,11 @@ package tk.germanbot.activity.lesson
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import tk.germanbot.activity.Activity
-import tk.germanbot.activity.ActivityData
-import tk.germanbot.activity.ActivityManager
-import tk.germanbot.activity.Event
-import tk.germanbot.activity.UserCommand
-import tk.germanbot.activity.UserTextMessageEvent
+import tk.germanbot.activity.*
 import tk.germanbot.service.Correctness
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
-import java.util.UUID
+import java.util.*
 
 data class QuizActivityData(
         override var userId: String = "",
@@ -48,19 +43,7 @@ class QuizActivity(
         }
 
         val valuation = quizService.checkAnswer(data.quizId, event.message)
-        when (valuation.result) {
-            Correctness.CORRECT -> {
-                messageGateway.textMessage(data.userId, "Correct! (y)")
-            }
-            Correctness.PARTIALLY_CORRECT -> {
-                messageGateway.textMessage(data.userId, "Almost! Answer:")
-                messageGateway.textMessage(data.userId, valuation.correctAnswer)
-            }
-            else -> {
-                messageGateway.textMessage(data.userId, ":-( not quite. Answer:")
-                messageGateway.textMessage(data.userId, valuation.correctAnswer)
-            }
-        }
+        messageGateway.textMessage(data.userId, valuation.result.getAnswer(valuation.correctAnswer))
         data.result = valuation.result
         activityManager.endActivity(this, data)
         return true

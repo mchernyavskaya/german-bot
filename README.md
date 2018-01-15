@@ -21,6 +21,11 @@ or:
 source ./setenv.sh
 ```
 
+Run dynamodb in a local docker container:
+```bash
+docker run -p8000:8000 -d dwmkerr/dynamodb
+```
+
 Run in docker:
 ```bash
 ./run.sh
