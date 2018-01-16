@@ -6,6 +6,7 @@ import tk.germanbot.activity.Activity
 import tk.germanbot.activity.ActivityData
 import tk.germanbot.activity.ActivityManager
 import tk.germanbot.activity.Event
+import tk.germanbot.service.Correctness
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
 import java.util.*
@@ -18,6 +19,8 @@ data class LessonActivityData(
     var answeredQuestions: Int = 0
     var totalQuestions: Int = desiredQuestions
     var questionIds: List<String> = listOf()
+    var correctAnswers: List<String> = listOf()
+    var wrongAnswers: List<String> = listOf()
 }
 
 @Component
@@ -54,12 +57,18 @@ class LessonActivity(
             return
         }
 
+        if (subActivityData.result == Correctness.CORRECT){
+            data.correctAnswers  = data.correctAnswers + subActivityData.quizId
+        } else {
+            data.wrongAnswers = data.wrongAnswers + subActivityData.quizId
+        }
+
         data.answeredQuestions++
         if (data.answeredQuestions < data.totalQuestions) {
             messageGateway.textMessage(data.userId, "You have done ${data.answeredQuestions} of ${data.totalQuestions}")
             activityManager.startQuizActivity(data.userId, data.questionIds[data.answeredQuestions])
         } else {
-            messageGateway.textMessage(data.userId, "All done!")
+            messageGateway.textMessage(data.userId, "All done! ${data.correctAnswers.size} of ${data.answeredQuestions} isCorrect!")
             activityManager.endActivity(this, data)
         }
     }

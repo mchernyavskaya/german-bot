@@ -20,6 +20,9 @@ class DynamoQuizServiceTest {
     @Mock
     private var quizValidator: QuizValidator? = null
 
+    @Mock
+    private val statService: UserStatService? = null
+
     @InjectMocks
     private var service: DynamoQuizService? = null
 

@@ -17,11 +17,11 @@ class QuizValidator {
         return AnswerValidationResult(Correctness.INCORRECT, correctAnswers.first())
     }
 
-    fun isCorrect(answerGiven: String, correctAnswer: String): Boolean {
+    private fun isCorrect(answerGiven: String, correctAnswer: String): Boolean {
         return answerGiven.equals(correctAnswer, true)
     }
 
-    fun isPartialCorrect(answerGiven: String, correctAnswer: String): Boolean {
+    private fun isPartialCorrect(answerGiven: String, correctAnswer: String): Boolean {
         // todo: do fuzzy check, e.g. diff in word ending is fine
         return answerGiven.equals(correctAnswer, true)
     }

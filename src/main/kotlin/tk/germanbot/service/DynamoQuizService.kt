@@ -10,7 +10,8 @@ import java.util.UUID
 @Service
 class DynamoQuizService(
         @Autowired private val quizRepo: QuizRepository,
-        @Autowired private val quizValidator: QuizValidator
+        @Autowired private val quizValidator: QuizValidator,
+        @Autowired private val statService: UserStatService
 ) : QuizService {
 
     override fun saveQuiz(userId: String, question: String, answer: String) {
@@ -26,29 +27,12 @@ class DynamoQuizService(
         quizRepo.save(quiz)
     }
 
-    private data class AnswersTopics(
-            val question: String,
-            val topics: Set<String>)
-
-    private fun extractTopics(question: String): AnswersTopics {
-        val topicRegex = Regex("#(\\w+)")
-
-        val topics = topicRegex.findAll(question)
-                .map { it.groupValues[1] }
-                .filter(String::isNotBlank)
-                .toSet()
-                .let { if (it.isEmpty()) setOf("undefined") else it }
-
-        val q = topicRegex.replace(question, "").trim()
-
-        return AnswersTopics(q, topics)
-    }
-
-    override fun checkAnswer(quizId: String, answer: String): AnswerValidationResult {
+    override fun checkAnswer(userId: String, quizId: String, answer: String): AnswerValidationResult {
         val quiz = quizRepo.findOneById(quizId) ?: throw EntityNotFoundException(Quiz::class, quizId)
         quiz.validate()
-        //todo: save answer statistic
-        return quizValidator.validate(answer, quiz.answers!!)
+        val validationResult = quizValidator.validate(answer, quiz.answers!!)
+        statService.updateQuizStat(userId, quizId, validationResult.result != Correctness.INCORRECT)
+        return validationResult
     }
 
     override fun getAnswer(quizId: String): String {
@@ -74,6 +58,24 @@ class DynamoQuizService(
         return mutable
                 .map { q -> q.id!! }
                 .toList()
+    }
+
+    private data class AnswersTopics(
+            val question: String,
+            val topics: Set<String>)
+
+    private fun extractTopics(question: String): AnswersTopics {
+        val topicRegex = Regex("#(\\w+)")
+
+        val topics = topicRegex.findAll(question)
+                .map { it.groupValues[1] }
+                .filter(String::isNotBlank)
+                .toSet()
+                .let { if (it.isEmpty()) setOf("undefined") else it }
+
+        val q = topicRegex.replace(question, "").trim()
+
+        return AnswersTopics(q, topics)
     }
 
 }

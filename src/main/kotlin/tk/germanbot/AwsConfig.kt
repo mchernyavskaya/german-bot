@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Profile
 import org.springframework.util.StringUtils
 import tk.germanbot.data.QUIZ_TABLE_NANE
 import tk.germanbot.data.Quiz
+import tk.germanbot.data.USER_QUIIZ_STAT_TABLE_NANE
+import tk.germanbot.data.UserQuizStat
 import javax.annotation.PostConstruct
 
 
@@ -53,10 +55,15 @@ class AwsConfig(@Autowired val props: AwsProperties) {
     fun initialize() {
         val dynamoDB = amazonDynamoDB()
         val dbMapper = DynamoDBMapper(dynamoDB)
-        val tableRequest = dbMapper.generateCreateTableRequest(Quiz::class.java)
-        tableRequest.provisionedThroughput = ProvisionedThroughput(props.readThroughput,
-                props.writeThroughput)
+        createTableIfNotExist(dbMapper, dynamoDB, Quiz::class.java, QUIZ_TABLE_NANE)
+        createTableIfNotExist(dbMapper, dynamoDB, UserQuizStat::class.java, USER_QUIIZ_STAT_TABLE_NANE)
+    }
+
+    private fun createTableIfNotExist(dbMapper: DynamoDBMapper, dynamoDB: AmazonDynamoDB, tableClass: Class<out Any>, tableName: String) {
+        val tableRequest = dbMapper.generateCreateTableRequest(tableClass)
+        tableRequest.provisionedThroughput = ProvisionedThroughput(props.readThroughput, props.writeThroughput)
+        tableRequest.globalSecondaryIndexes?.forEach { i -> i.provisionedThroughput = tableRequest.provisionedThroughput }
         TableUtils.createTableIfNotExists(dynamoDB, tableRequest)
-        TableUtils.waitUntilActive(dynamoDB, QUIZ_TABLE_NANE)
+        TableUtils.waitUntilActive(dynamoDB, tableName)
     }
 }

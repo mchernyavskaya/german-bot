@@ -2,11 +2,16 @@ package tk.germanbot.activity.lesson
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import tk.germanbot.activity.*
+import tk.germanbot.activity.Activity
+import tk.germanbot.activity.ActivityData
+import tk.germanbot.activity.ActivityManager
+import tk.germanbot.activity.Event
+import tk.germanbot.activity.UserCommand
+import tk.germanbot.activity.UserTextMessageEvent
 import tk.germanbot.service.Correctness
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
-import java.util.*
+import java.util.UUID
 
 data class QuizActivityData(
         override var userId: String = "",
@@ -42,7 +47,7 @@ class QuizActivity(
             return true
         }
 
-        val valuation = quizService.checkAnswer(data.quizId, event.message)
+        val valuation = quizService.checkAnswer(data.userId, data.quizId, event.message)
         messageGateway.textMessage(data.userId, valuation.result.getAnswer(valuation.correctAnswer))
         data.result = valuation.result
         activityManager.endActivity(this, data)
