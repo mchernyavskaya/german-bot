@@ -4,6 +4,7 @@ import com.github.messenger4j.exceptions.MessengerApiException
 import com.github.messenger4j.exceptions.MessengerIOException
 import com.github.messenger4j.send.MessengerSendClient
 import com.github.messenger4j.send.QuickReply
+import com.github.messenger4j.send.templates.GenericTemplate
 import org.slf4j.LoggerFactory
 import tk.germanbot.activity.UserCommand
 import tk.germanbot.service.MessageGateway
@@ -35,6 +36,26 @@ class MessengerGateway(val sendClient: MessengerSendClient) : MessageGateway {
             handleSendException(e)
         }
     }
+
+    override fun genericMessage(userId: String, title: String, subtitle: String) {
+
+        val genericTemplate = GenericTemplate.newBuilder()
+                .addElements()
+                .addElement(title)
+                .subtitle(subtitle)
+                .toList()
+                .done()
+                .build()
+
+        try {
+            this.sendClient.sendTemplate(userId, genericTemplate)
+        } catch (e: MessengerApiException) {
+            handleSendException(e)
+        } catch (e: MessengerIOException) {
+            handleSendException(e)
+        }
+    }
+
 
     private fun handleSendException(e: Exception) {
         logger.error("Unable to send message.", e)

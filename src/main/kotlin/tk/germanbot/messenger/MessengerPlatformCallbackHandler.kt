@@ -180,7 +180,7 @@ class MessengerPlatformCallbackHandler(
 //    }
 //
 //    @Throws(MessengerApiException::class, MessengerIOException::class)
-//    private fun sendGenericMessage(recipientId: String) {
+//    private fun genericMessage(recipientId: String) {
 //        val riftButtons = Button.newListBuilder()
 //                .addUrlButton("Open Web URL", "https://www.oculus.com/en-us/rift/").toList()
 //                .addPostbackButton("Call Postback", "Payload for first bubble").toList()

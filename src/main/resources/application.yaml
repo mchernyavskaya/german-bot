@@ -7,7 +7,7 @@ logging:
   level:
     ROOT: INFO
     com.github.messenger4j: INFO
-    tk.germanbot: INFO?
+    tk.germanbot: INFO
 
 aws:
   dynamodb:

@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import tk.germanbot.activity.ActivityManager
-import tk.germanbot.service.MessageGateway
 import tk.germanbot.activity.UserTextMessageEvent
+import tk.germanbot.service.MessageGateway
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -44,6 +44,11 @@ class ConsoleConfig {
     @Primary
     fun msgGateway(): MessageGateway
             = object : MessageGateway {
+        override fun genericMessage(userId: String, title: String, subtitle: String) {
+            System.out.println(title)
+            System.out.println("->" + subtitle)
+        }
+
         override fun textMessage(userId: String, message: String) {
             System.out.println(message)
         }
