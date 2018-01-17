@@ -18,7 +18,8 @@ class WelcomeActivity(
 ) : Activity<WelcomeActivityData>() {
 
     override val helpText = "#q - start quick session (5 questions)\n" +
-            "#a - add quiz"
+            "#a - add quiz\n" +
+            "#aa - add multiple quizzes"
 
     override fun onEvent(event: Event, data: WelcomeActivityData): Boolean {
 
@@ -32,9 +33,8 @@ class WelcomeActivity(
             return true
         }
 
-        if (!data.isHelloSaid) {
-            data.isHelloSaid = true
-            messageGateway.textMessage(data.userId, "Welcome! Type '?' for help")
+        if (isTextMessage(event, "#aa")) {
+            activityManager.startAddQuizActivity(data.userId, true)
             return true
         }
 

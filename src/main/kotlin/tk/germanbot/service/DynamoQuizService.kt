@@ -14,7 +14,7 @@ class DynamoQuizService(
         @Autowired private val statService: UserStatService
 ) : QuizService {
 
-    override fun saveQuiz(userId: String, question: String, answer: String) {
+    override fun saveQuiz(userId: String, question: String, answer: String): Quiz {
         val (q, topics) = extractTopics(question)
 
         val answers = answer.split("+")
@@ -25,6 +25,8 @@ class DynamoQuizService(
         val quiz = Quiz(createdBy = userId, question = q, answers = answers, topics = topics)
         quiz.validate()
         quizRepo.save(quiz)
+
+        return quiz
     }
 
     override fun checkAnswer(userId: String, quizId: String, answer: String): AnswerValidationResult {

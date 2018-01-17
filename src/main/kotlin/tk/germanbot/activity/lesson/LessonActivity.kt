@@ -9,7 +9,7 @@ import tk.germanbot.activity.Event
 import tk.germanbot.service.Correctness
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
-import java.util.*
+import java.util.UUID
 
 data class LessonActivityData(
         override var userId: String = "",
@@ -68,7 +68,7 @@ class LessonActivity(
             messageGateway.textMessage(data.userId, "You have done ${data.answeredQuestions} of ${data.totalQuestions}")
             activityManager.startQuizActivity(data.userId, data.questionIds[data.answeredQuestions])
         } else {
-            messageGateway.textMessage(data.userId, "All done! ${data.correctAnswers.size} of ${data.answeredQuestions} isCorrect!")
+            messageGateway.textMessage(data.userId, "All done! ${data.correctAnswers.size} of ${data.answeredQuestions} correct!")
             activityManager.endActivity(this, data)
         }
     }
