@@ -7,12 +7,14 @@ import com.github.messenger4j.MessengerPlatform.SIGNATURE_HEADER_NAME
 import com.github.messenger4j.MessengerPlatform.VERIFY_TOKEN_REQUEST_PARAM_NAME
 import com.github.messenger4j.exceptions.MessengerVerificationException
 import com.github.messenger4j.receive.MessengerReceiveClient
+import com.github.messenger4j.receive.events.AttachmentMessageEvent
 import com.github.messenger4j.receive.events.EchoMessageEvent
 import com.github.messenger4j.receive.events.FallbackEvent
 import com.github.messenger4j.receive.events.MessageDeliveredEvent
 import com.github.messenger4j.receive.events.MessageReadEvent
 import com.github.messenger4j.receive.events.QuickReplyMessageEvent
 import com.github.messenger4j.receive.events.TextMessageEvent
+import com.github.messenger4j.receive.handlers.AttachmentMessageEventHandler
 import com.github.messenger4j.receive.handlers.EchoMessageEventHandler
 import com.github.messenger4j.receive.handlers.FallbackEventHandler
 import com.github.messenger4j.receive.handlers.MessageDeliveredEventHandler
@@ -30,7 +32,8 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import tk.germanbot.MessengerProperties
-import tk.germanbot.activity.ActivityManager
+import tk.germanbot.activity.EventDispatcher
+import tk.germanbot.activity.UserAttachmentEvent
 import tk.germanbot.activity.UserButtonEvent
 import tk.germanbot.activity.UserCommand
 import tk.germanbot.activity.UserTextMessageEvent
@@ -39,7 +42,7 @@ import tk.germanbot.activity.UserTextMessageEvent
 @RequestMapping("/webhook")
 class MessengerPlatformCallbackHandler(
         @Autowired private val props: MessengerProperties,
-        @Autowired private val activityManager: ActivityManager) {
+        @Autowired private val eventDispatcher: EventDispatcher) {
 
     companion object {
         private val RESOURCE_URL = "https://raw.githubusercontent.com/fbsamples/messenger-platform-samples/master/node/public"
@@ -54,7 +57,7 @@ class MessengerPlatformCallbackHandler(
         this.receiveClient = MessengerPlatform.newReceiveClientBuilder(props.appSecret, props.verifyToken)
                 .onTextMessageEvent(newTextMessageEventHandler())
                 .onQuickReplyMessageEvent(newQuickReplyMessageEventHandler())
-//                .onAttachmentMessageEvent(newAttachmentMessageEventHandler())
+                .onAttachmentMessageEvent(newAttachmentMessageEventHandler())
 //                .onPostbackEvent(newPostbackEventHandler())
 //                .onAccountLinkingEvent(newAccountLinkingEventHandler())
 //                .onOptInEvent(newOptInEventHandler())
@@ -112,15 +115,10 @@ class MessengerPlatformCallbackHandler(
         return handle({ event ->
             logger.debug("Received TextMessageEvent: {}", event)
 
-            val messageId = event.getMid()
-            val messageText = event.getText()
-            val senderId = event.getSender().getId()
-            val timestamp = event.getTimestamp()
-
             logger.info("Received userText '{}' with text '{}' from user '{}' at '{}'",
-                    messageId, messageText, senderId, timestamp)
+                    event.mid, event.text, event.sender.id, event.timestamp)
 
-            activityManager.handleEvent(senderId, UserTextMessageEvent(senderId, event.text))
+            eventDispatcher.handleEvent(event.sender.id, UserTextMessageEvent(event.sender.id, event.text))
         })
     }
 
@@ -129,14 +127,32 @@ class MessengerPlatformCallbackHandler(
         return handle({ event ->
             logger.debug("Received QuickReplyMessageEvent: {}", event)
 
-            val senderId = event.getSender().getId()
-            val messageId = event.getMid()
-            val quickReplyPayload = event.getQuickReply().getPayload()
+            val quickReplyPayload = event.quickReply.payload
 
-            logger.info("Received quick reply for userText '{}' with payload '{}'", messageId, quickReplyPayload)
+            logger.info("Received quick reply for userText '{}' with payload '{}'", event.mid, quickReplyPayload)
 
             UserCommand.parse(quickReplyPayload).ifPresent { button ->
-                activityManager.handleEvent(senderId, UserButtonEvent(senderId, button))
+                eventDispatcher.handleEvent(event.sender.id, UserButtonEvent(event.sender.id, button))
+            }
+        })
+    }
+
+    private fun newAttachmentMessageEventHandler(): AttachmentMessageEventHandler {
+        fun handle(handler: (AttachmentMessageEvent) -> Unit) = AttachmentMessageEventHandler { event -> handler(event) }
+        return handle({ event ->
+            logger.debug("Received AttachmentMessageEvent: {}", event)
+
+            logger.info("Received message with attachments from user '{}' at '{}':", event.sender.id, event.timestamp)
+
+            event.attachments.forEach { attach ->
+
+                if (attach.payload.isBinaryPayload) {
+                    val url = attach.payload.asBinaryPayload().url
+                    eventDispatcher.handleEvent(event.sender.id, UserAttachmentEvent(event.sender.id, url))
+                } else if (attach.payload.isLocationPayload) {
+                    val url = attach.payload.asLocationPayload().coordinates.toString()
+                    eventDispatcher.handleEvent(event.sender.id, UserAttachmentEvent(event.sender.id, url))
+                }
             }
         })
     }
@@ -279,37 +295,6 @@ class MessengerPlatformCallbackHandler(
 //        // sample implementation coming soon
 //    }
 
-//    private fun newAttachmentMessageEventHandler(): AttachmentMessageEventHandler {
-//        fun handle(handler: (AttachmentMessageEvent) -> Unit) = AttachmentMessageEventHandler { event -> handler(event) }
-//        return handle({ event ->
-//            logger.debug("Received AttachmentMessageEvent: {}", event)
-//
-//            val messageId = event.getMid()
-//            val attachments = event.getAttachments()
-//            val senderId = event.getSender().getId()
-//            val timestamp = event.getTimestamp()
-//
-//            logger.info("Received userText '{}' with attachments from user '{}' at '{}':",
-//                    messageId, senderId, timestamp)
-//
-//            attachments.forEach { attachment ->
-//                val attachmentType = attachment.getType()
-//                val payload = attachment.getPayload()
-//
-//                var payloadAsString: String? = null
-//                if (payload.isBinaryPayload()) {
-//                    payloadAsString = payload.asBinaryPayload().getUrl()
-//                }
-//                if (payload.isLocationPayload()) {
-//                    payloadAsString = payload.asLocationPayload().getCoordinates().toString()
-//                }
-//
-//                logger.info("Attachment of type '{}' with payload '{}'", attachmentType, payloadAsString)
-//            }
-//
-//            sendTextMessage(senderId, "Message with attachment received")
-//        })
-//    }
 //    private fun newPostbackEventHandler(): PostbackEventHandler {
 //        fun handle(handler: (PostbackEvent) -> Unit) = PostbackEventHandler { event -> handler(event) }
 //        return handle({ event ->

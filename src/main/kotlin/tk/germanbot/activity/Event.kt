@@ -15,3 +15,7 @@ class UserTextMessageEvent(
 class UserButtonEvent(
         val userId: String,
         val button: UserCommand) : Event()
+
+class UserAttachmentEvent(
+        val userId: String,
+        val fileUrl: String) : Event()

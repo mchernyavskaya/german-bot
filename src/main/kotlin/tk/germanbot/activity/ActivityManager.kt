@@ -17,9 +17,9 @@ class ActivityManager(
         @Autowired @Lazy private var welcomeActivity: WelcomeActivity,
         @Autowired @Lazy private var lessonActivity: LessonActivity,
         @Autowired @Lazy private var quizActivity: QuizActivity,
-        @Autowired @Lazy private var addQuizActivity: AddQuizActivity) {
+        @Autowired @Lazy private var addQuizActivity: AddQuizActivity) : EventDispatcher {
 
-    fun handleEvent(userId: String, event: Event) {
+    override fun handleEvent(userId: String, event: Event) {
         val storedStack = stateService.getActivityStack(userId)
         val stack = if (storedStack.isEmpty())
             listOf(startWelcomeActivity(userId))

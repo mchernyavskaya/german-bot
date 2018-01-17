@@ -55,6 +55,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
     compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+    compile('commons-io:commons-io:2.5')
     // dynamo db
     compile("org.springframework.data:spring-data-releasetrain:${springDataVersion}")
     compile("com.amazonaws:aws-java-sdk-dynamodb:${dynamoDbVersion}")
