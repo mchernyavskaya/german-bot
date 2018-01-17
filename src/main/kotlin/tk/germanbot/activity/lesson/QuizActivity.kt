@@ -54,11 +54,11 @@ class QuizActivity(
             data.hintCount++
             data.lastHint = hintService.hint(correctAnswer, data.hintCount)
             if (correctAnswer == data.lastHint) {
-                messageGateway.textMessage(data.userId, "Here's the answer: *$correctAnswer*")
+                messageGateway.textMessage(data.userId, "Here's the answer: $correctAnswer")
                 data.result = Correctness.INCORRECT
                 activityManager.endActivity(this, data)
             } else {
-                messageGateway.textMessage(data.userId, "Hint: *${data.lastHint.toString()}*")
+                messageGateway.textMessage(data.userId, "Hint: ${data.lastHint.toString()}")
             }
             return true
         }

@@ -8,12 +8,12 @@ class HintService {
      * Create a hint from current value
      * (Opens as many symbols as the second parameter says)
      */
-    fun hint(answer: String, open: Int): String {
+    fun hint(answer: String, open: Int, mask: Char = '*'): String {
         if (answer.isEmpty() || open <= 0) {
             return answer
         }
         val result: Array<Char?> = arrayOfNulls(answer.length)
-        result.fill('-')
+        result.fill(mask)
         for ((index, c) in answer.withIndex()) {
             if (index >= open) {
                 break
