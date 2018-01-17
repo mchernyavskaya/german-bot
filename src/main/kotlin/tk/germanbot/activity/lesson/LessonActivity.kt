@@ -9,7 +9,7 @@ import tk.germanbot.activity.Event
 import tk.germanbot.service.Correctness
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
-import java.util.UUID
+import java.util.*
 
 data class LessonActivityData(
         override var userId: String = "",
@@ -34,7 +34,7 @@ class LessonActivity(
         data.questionIds = quizService.getQuestionIds(data.userId, data.desiredQuestions)
         data.totalQuestions = data.questionIds.size
         if (data.totalQuestions > 0) {
-            messageGateway.textMessage(data.userId, "Lets do ${data.totalQuestions} exercises")
+            messageGateway.textMessage(data.userId, "Lets do ${data.totalQuestions} exercises (type #h for hint if you need one)")
             activityManager.startQuizActivity(data.userId, data.questionIds[0])
         } else {
             messageGateway.textMessage(data.userId, "Sorry, we have no questions yet! Please add some.")

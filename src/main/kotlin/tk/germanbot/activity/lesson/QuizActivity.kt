@@ -35,7 +35,7 @@ class QuizActivity(
         if (quiz.answers != null) {
             data.correctAnswers = quiz.answers!!
         }
-        messageGateway.textMessage(data.userId, "${quiz.question!!} (#h for hint)")
+        messageGateway.textMessage(data.userId, quiz.question!!)
     }
 
     override fun onEvent(event: Event, data: QuizActivityData): Boolean {
