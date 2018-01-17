@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import tk.germanbot.activity.ActivityData
+import tk.germanbot.activity.ActivityManager
+import tk.germanbot.activity.AsyncEventDispatcher
+import tk.germanbot.activity.EventDispatcher
 import tk.germanbot.messenger.MessengerGateway
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.StateService
@@ -19,6 +22,9 @@ class InMemoryFlowConfig {
     @Bean
     fun stateService(): StateService = InMemoryStateService()
 
+    @Bean
+    fun eventDispatcher(@Autowired activityManager: ActivityManager): EventDispatcher
+            = AsyncEventDispatcher(activityManager)
 }
 
 class InMemoryStateService : StateService {

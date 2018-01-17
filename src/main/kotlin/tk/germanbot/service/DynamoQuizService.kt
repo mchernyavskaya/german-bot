@@ -14,6 +14,12 @@ class DynamoQuizService(
         @Autowired private val statService: UserStatService
 ) : QuizService {
 
+    // todo: retry with pause?
+    override fun saveQuiz(userId: String, quiz: Quiz): Quiz {
+        quiz.validate()
+        return quizRepo.save(quiz)
+    }
+
     override fun saveQuiz(userId: String, question: String, answer: String): Quiz {
         val (q, topics) = extractTopics(question)
 
@@ -22,11 +28,7 @@ class DynamoQuizService(
                 .filter(String::isNotBlank)
                 .toSet()
 
-        val quiz = Quiz(createdBy = userId, question = q, answers = answers, topics = topics)
-        quiz.validate()
-        quizRepo.save(quiz)
-
-        return quiz
+        return saveQuiz(userId, Quiz(createdBy = userId, question = q, answers = answers, topics = topics))
     }
 
     override fun checkAnswer(userId: String, quizId: String, answer: String): AnswerValidationResult {
