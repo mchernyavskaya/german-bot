@@ -29,10 +29,12 @@ class WelcomeActivity(
 
     private val logger = LoggerFactory.getLogger(WelcomeActivity::class.java)
 
-    override val helpText = "#q - start quick session (5 questions)\n" +
+    override val helpText = "Now you can:" +
+            "#q - start quick session (5 questions)\n" +
             "#a - add quiz\n" +
-            "#aa - add multiple quizzes" +
-            "#e - export quizzes"
+            "#aa - add multiple quizzes\n" +
+            "#e - export quizzes\n" +
+            "or upload file with quizzes"
 
     override fun onEvent(event: Event, data: WelcomeActivityData): Boolean {
 
@@ -58,7 +60,7 @@ class WelcomeActivity(
 
         // todo: move to separated activity
         if (event is UserAttachmentEvent) {
-            parseQuizFile(event.userId, event.fileUrl)
+            loadQuizzesFromFile(event.userId, event.fileUrl)
             return true
         }
 
@@ -66,7 +68,7 @@ class WelcomeActivity(
     }
 
     private fun exportQuizzes(userId: String) {
-        // todo: limit export only user's quizzes
+        // todo: limit export to only user's quizzes
         val quizzes = quizService.getAll()
         val quizFileContent = QuizTextFileGenerator().generateFile(quizzes)
         val uploadedFileUrl = s3Service.uploadFile(userId + ".txt", quizFileContent)
@@ -74,7 +76,7 @@ class WelcomeActivity(
         messageGateway.fileMessage(userId, uploadedFileUrl)
     }
 
-    private fun parseQuizFile(userId: String, fileUrl: String) {
+    private fun loadQuizzesFromFile(userId: String, fileUrl: String) {
         val inStream = URL(fileUrl).openStream()
         try {
             val content = IOUtils.toString(inStream, Charset.defaultCharset())

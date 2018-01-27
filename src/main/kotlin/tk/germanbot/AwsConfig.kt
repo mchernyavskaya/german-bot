@@ -51,6 +51,11 @@ class AwsConfig(@Autowired val props: AwsProperties) {
         return builder.build()
     }
 
+    @Bean
+    fun dynamoDBMapper(@Autowired client: AmazonDynamoDB) : DynamoDBMapper{
+        return DynamoDBMapper(client)
+    }
+
     @PostConstruct
     fun initialize() {
         val dynamoDB = amazonDynamoDB()
