@@ -6,6 +6,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.runners.MockitoJUnitRunner
 import tk.germanbot.activity.lesson.QuizActivity
+import tk.germanbot.service.HintService
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
 
@@ -18,6 +19,8 @@ class QuizActivityTest {
     var messageGateway: MessageGateway? = null
     @Mock
     val quizService: QuizService? = null
+    @Mock
+    val hintService: HintService? = null
 
     @InjectMocks
     var activity: QuizActivity? = null

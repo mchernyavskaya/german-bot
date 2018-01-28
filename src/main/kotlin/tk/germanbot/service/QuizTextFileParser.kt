@@ -19,7 +19,11 @@ class QuizTextFileParser(
         var quizzes = listOf<Quiz>()
         var isFirstLine = true
         while (scanner.hasNextLine()) {
-            val question = scanner.nextLine().trim()
+            val firstLine = scanner.nextLine().trim()
+
+            val id = if (firstLine.startsWith("id:", ignoreCase = true)) firstLine.substring(3).trim() else null
+
+            val question = if (id == null) firstLine else scanner.nextLine().trim()
             if (question.isBlank()) {
                 continue
             }
@@ -45,8 +49,8 @@ class QuizTextFileParser(
                     answers += answer
                 }
             }
-            
-            quizzes += Quiz(createdBy = userId, question = question, answers = answers, topics = topics + globalTopics)
+
+            quizzes += Quiz(id = id, createdBy = userId, question = question, answers = answers, topics = topics + globalTopics)
         }
 
         return quizzes

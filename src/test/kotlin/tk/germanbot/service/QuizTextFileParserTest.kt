@@ -1,8 +1,7 @@
-package tk.germanbot.activity.add
+package tk.germanbot.service
 
 import org.assertj.core.api.Assertions
 import org.junit.Test
-import tk.germanbot.service.QuizTextFileParser
 
 class QuizTextFileParserTest {
     @Test
@@ -48,6 +47,39 @@ Answer22
         Assertions.assertThat(q[0].question).isEqualTo("Question1")
         Assertions.assertThat(q[0].answers).containsExactly("Answer11", "Answer12")
         Assertions.assertThat(q[0].topics).containsExactly("topic11", "topic12")
+        Assertions.assertThat(q[1].question).isEqualTo("Question2")
+        Assertions.assertThat(q[1].answers).containsExactly("Answer21", "Answer22")
+        Assertions.assertThat(q[1].topics).containsExactly("topic21", "topic22")
+
+    }
+
+    @Test
+    fun getQuizzesShouldParseTwoWithIds() {
+        val simple = """
+
+ID: 123
+Question1
+Answer11
+Answer12
+#topic11 #topic12
+
+id:456
+Question2
+Answer21
+Answer22
+#topic21 #topic22
+
+
+"""
+
+        val q = QuizTextFileParser("userId", simple).getQuizzes()
+
+        Assertions.assertThat(q).hasSize(2)
+        Assertions.assertThat(q[0].id).isEqualTo("123")
+        Assertions.assertThat(q[0].question).isEqualTo("Question1")
+        Assertions.assertThat(q[0].answers).containsExactly("Answer11", "Answer12")
+        Assertions.assertThat(q[0].topics).containsExactly("topic11", "topic12")
+        Assertions.assertThat(q[1].id).isEqualTo("456")
         Assertions.assertThat(q[1].question).isEqualTo("Question2")
         Assertions.assertThat(q[1].answers).containsExactly("Answer21", "Answer22")
         Assertions.assertThat(q[1].topics).containsExactly("topic21", "topic22")

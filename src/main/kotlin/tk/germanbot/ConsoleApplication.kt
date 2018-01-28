@@ -44,6 +44,11 @@ class ConsoleConfig {
     @Primary
     fun msgGateway(): MessageGateway
             = object : MessageGateway {
+
+        override fun fileMessage(userId: String, fileUrl: String) {
+            System.out.println(fileUrl)
+        }
+
         override fun genericMessage(userId: String, title: String, subtitle: String) {
             System.out.println(title)
             System.out.println("->" + subtitle)

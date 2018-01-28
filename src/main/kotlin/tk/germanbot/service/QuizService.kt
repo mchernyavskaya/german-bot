@@ -10,6 +10,7 @@ interface QuizService {
     fun getAnswer(quizId: String): String
     fun getQuiz(questionId: String): Quiz
     fun getQuestionIds(userId: String, totalQuestions: Int): List<String>
+    fun getAll(): List<Quiz>
 }
 
 enum class Correctness(private val answers: Array<String>) {

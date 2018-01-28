@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput
 import com.amazonaws.services.dynamodbv2.util.TableUtils
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -16,7 +17,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import tk.germanbot.Application
 import tk.germanbot.IntegrationTestsConfig
-
 
 /***
  * Add -Djava.library.path=build/libs to run profile in order to execute this test from IDE
@@ -67,6 +67,21 @@ class QuizRepositoryIntegrationTest {
         assertTrue("ID Not empty", result!!.id != null)
         assertTrue("Contains item with expected translation",
                 result!!.question == EXPECTED_Q)
+    }
+
+    @Test
+    fun updateById() {
+        repository!!.save(Quiz(id = "123", createdBy = "me", question = "Q", answers = setOf("A1"), topics = setOf("A", "B")))
+
+        val savedQ = repository!!.findOneById("123")
+        assertThat(savedQ).isNotNull()
+        assertThat(savedQ!!.question).isEqualTo("Q")
+
+        repository!!.save(Quiz(id = "123", createdBy = "me", question = "QQ", answers = setOf("A1"), topics = setOf("A", "B")))
+
+        val updatedQ = repository!!.findOneById("123")
+        assertThat(updatedQ).isNotNull()
+        assertThat(updatedQ!!.question).isEqualTo("QQ")
     }
 
     @Test

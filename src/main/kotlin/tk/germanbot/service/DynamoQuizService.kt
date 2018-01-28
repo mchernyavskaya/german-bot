@@ -64,6 +64,10 @@ class DynamoQuizService(
                 .toList()
     }
 
+    override fun getAll(): List<Quiz> {
+        return quizRepo.findAll()
+    }
+
     private data class AnswersTopics(
             val question: String,
             val topics: Set<String>)
