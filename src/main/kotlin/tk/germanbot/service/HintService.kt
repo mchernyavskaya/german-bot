@@ -23,7 +23,7 @@ class HintService {
                 }
                 wordMask[index] = "" + c
             }
-            result = result.plus(" ").plus(wordMask.joinToString("").trim())
+            result = result.plus("   ").plus(wordMask.joinToString("").trim())
         }
         return result.trim()
     }
