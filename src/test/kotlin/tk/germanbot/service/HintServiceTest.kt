@@ -9,13 +9,31 @@ class HintServiceTest {
     @Test
     fun hintOne() {
         val hint = service.hint("Answer", 1)
-        assertThat(hint).isEqualTo("A*****")
+        assertThat(hint).isEqualTo("A_ _ _ _ _")
+    }
+
+    @Test
+    fun hintOneTwoWords() {
+        val hint = service.hint("Answer Two", 1)
+        assertThat(hint).isEqualTo("A_ _ _ _ _ T_ _")
     }
 
     @Test
     fun hintTwo() {
         val hint = service.hint("Answer", 2)
-        assertThat(hint).isEqualTo("An****")
+        assertThat(hint).isEqualTo("An_ _ _ _")
+    }
+
+    @Test
+    fun hintTwoTwoWords() {
+        val hint = service.hint("Answer Two", 2)
+        assertThat(hint).isEqualTo("An_ _ _ _ Tw_")
+    }
+
+    @Test
+    fun hintFourTwoWords() {
+        val hint = service.hint("Answer Two", 4)
+        assertThat(hint).isEqualTo("Answ_ _ Two")
     }
 
     @Test
