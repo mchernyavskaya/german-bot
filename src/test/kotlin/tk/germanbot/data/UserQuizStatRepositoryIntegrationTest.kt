@@ -2,7 +2,6 @@ package tk.germanbot.data
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput
 import com.amazonaws.services.dynamodbv2.util.TableUtils
 import org.assertj.core.api.Assertions
 import org.junit.Before
@@ -15,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import tk.germanbot.Application
+import tk.germanbot.DynamoTools
 import tk.germanbot.IntegrationTestsConfig
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -31,23 +31,23 @@ import java.util.Date
 @ActiveProfiles("test")
 class UserQuizStatRepositoryIntegrationTest {
 
-    private var dynamoDBMapper: DynamoDBMapper? = null
+    private var mapper: DynamoDBMapper? = null
     @Autowired
     private val db: AmazonDynamoDB? = null
     @Autowired
     internal var repository: UserQuizStatRepository? = null
 
+    @Autowired
+    private var dynamoTools: DynamoTools? = null
+
     @Before
     @Throws(Exception::class)
     fun setup() {
-        dynamoDBMapper = DynamoDBMapper(db)
-        val tableRequest = dynamoDBMapper!!
-                .generateCreateTableRequest(UserQuizStat::class.java)
-        tableRequest.provisionedThroughput = ProvisionedThroughput(1L, 1L)
-        tableRequest.globalSecondaryIndexes?.forEach { i -> i.provisionedThroughput = ProvisionedThroughput(1L, 1L) }
-        TableUtils.createTableIfNotExists(db, tableRequest)
+        mapper = DynamoDBMapper(db)
+
+        dynamoTools!!.createTableIfNotExist(mapper!!, db!!, UserQuizStat::class.java, USER_QUIIZ_STAT_TABLE_NANE)
         TableUtils.waitUntilActive(db, USER_QUIIZ_STAT_TABLE_NANE)
-        dynamoDBMapper!!.batchDelete(repository!!.findAll())
+        mapper!!.batchDelete(repository!!.findAll())
 
         val yesterday = Instant.now().minus(1, ChronoUnit.DAYS)
         val tomorrow = Instant.now().plus(1, ChronoUnit.DAYS)

@@ -30,7 +30,7 @@ class WelcomeActivity(
     private val logger = LoggerFactory.getLogger(WelcomeActivity::class.java)
 
     override val helpText = "Now you can:" +
-            "#q - start quick session (5 questions)\n" +
+            "#q [topics] - start quick quiz\n" +
             "#a - add quiz\n" +
             "#aa - add multiple quizzes\n" +
             "#e - export quizzes\n" +
@@ -39,7 +39,13 @@ class WelcomeActivity(
     override fun onEvent(event: Event, data: WelcomeActivityData): Boolean {
 
         if (isTextMessage(event, "#q")) {
-            activityManager.startLessonActivity(data.userId)
+            val topics = (event as UserTextMessageEvent).message
+                    .substring(2)
+                    .trim()
+                    .split("\\s+")
+                    .filter(String::isNotBlank)
+                    .toSet()
+            activityManager.startLessonActivity(data.userId, topics)
             return true
         }
 

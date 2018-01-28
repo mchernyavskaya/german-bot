@@ -2,7 +2,6 @@ package tk.germanbot.data
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput
 import com.amazonaws.services.dynamodbv2.util.TableUtils
 import com.google.common.collect.Sets
 import org.assertj.core.api.Assertions
@@ -16,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import tk.germanbot.Application
+import tk.germanbot.DynamoTools
 import tk.germanbot.IntegrationTestsConfig
 
 /***
@@ -36,18 +36,16 @@ class QuizTopicRepositoryIntegrationTest {
 
     private var mapper: DynamoDBMapper? = null
 
+    @Autowired
+    private var dynamoTools: DynamoTools? = null
+
     @Before
     @Throws(Exception::class)
     fun setup() {
         mapper = DynamoDBMapper(db)
 
         TableUtils.deleteTableIfExists(db, mapper!!.generateDeleteTableRequest(QuizTopic::class.java))
-
-        val tableRequest = mapper!!
-                .generateCreateTableRequest(QuizTopic::class.java)
-        tableRequest.provisionedThroughput = ProvisionedThroughput(1L, 1L)
-        tableRequest.globalSecondaryIndexes?.forEach { i -> i.provisionedThroughput = ProvisionedThroughput(1L, 1L) }
-        TableUtils.createTableIfNotExists(db, tableRequest)
+        dynamoTools!!.createTableIfNotExist(mapper!!, db!!, QuizTopic::class.java, QUIZ_TOPIC_TABLE_NANE)
 
         TableUtils.waitUntilActive(db, QUIZ_TOPIC_TABLE_NANE)
     }

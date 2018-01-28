@@ -63,7 +63,19 @@ data class QuizTopic(
         @DynamoDBRangeKey
         @DynamoDBIndexHashKey(globalSecondaryIndexName = "german_bot_idx_quiz_topic")
         var quizId: String? = null
-)
+) {
+    companion object {
+
+        fun getAllCombinations(topics: Set<String>): List<String> {
+            return Sets.powerSet(topics)
+                    .flatMap { set -> setOf(getTopicKey(set)) }
+                    .filter(String::isNotBlank)
+        }
+
+        fun getTopicKey(set: Set<String>) = set.sorted().joinToString("#")
+    }
+
+}
 
 @EnableScan
 interface QuizRepository : CrudRepository<Quiz, String> {
@@ -75,9 +87,9 @@ interface QuizRepository : CrudRepository<Quiz, String> {
 
     fun findByTopicsContaining(topics: String): List<Quiz>
 
-    fun findTop5ByIdGreaterThan(randomKey: String): List<Quiz>
+    fun findTop50ByIdGreaterThan(randomKey: String): List<Quiz>
 
-    fun findTop5ByIdLessThan(randomKey: String): List<Quiz>
+    fun findTop50ByIdLessThan(randomKey: String): List<Quiz>
 }
 
 @Component
@@ -102,7 +114,7 @@ class QuizTopicRepository(
 
     fun findQuizIdsByTopics(topics: Set<String>): PaginatedQueryList<QuizTopic> {
         val quizByTopicExpression = DynamoDBQueryExpression<QuizTopic>()
-                .withHashKeyValues(QuizTopic(topic = getTopicKey(topics)))
+                .withHashKeyValues(QuizTopic(topic = QuizTopic.getTopicKey(topics)))
                 .withProjectionExpression("quizId")
         return mapper.query(QuizTopic::class.java, quizByTopicExpression)
     }
@@ -121,16 +133,8 @@ class QuizTopicRepository(
     }
 
     private fun generateTopics(quiz: Quiz): List<QuizTopic> {
-        return getAllCombinations(quiz.topics!!)
+        return QuizTopic.getAllCombinations(quiz.topics!!)
                 .map { topic -> QuizTopic(quizId = quiz.id, topic = topic) }
     }
-
-    private fun getAllCombinations(topics: Set<String>): List<String> {
-        return Sets.powerSet(topics)
-                .flatMap { set -> setOf(getTopicKey(set)) }
-                .filter(String::isNotBlank)
-    }
-
-    private fun getTopicKey(set: Set<String>) = set.sorted().joinToString("#")
 
 }

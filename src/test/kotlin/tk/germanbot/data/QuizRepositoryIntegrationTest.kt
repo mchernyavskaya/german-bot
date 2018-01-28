@@ -2,7 +2,6 @@ package tk.germanbot.data
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput
 import com.amazonaws.services.dynamodbv2.util.TableUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertTrue
@@ -16,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import tk.germanbot.Application
+import tk.germanbot.DynamoTools
 import tk.germanbot.IntegrationTestsConfig
 
 /***
@@ -37,17 +37,19 @@ class QuizRepositoryIntegrationTest {
     @Autowired
     internal var repository: QuizRepository? = null
 
+    @Autowired
+    private var dynamoTools: DynamoTools? = null
+
     var hello: Quiz? = null
 
     @Before
     @Throws(Exception::class)
     fun setup() {
         dynamoDBMapper = DynamoDBMapper(db)
-        val tableRequest = dynamoDBMapper!!
-                .generateCreateTableRequest(Quiz::class.java)
-        tableRequest.provisionedThroughput = ProvisionedThroughput(1L, 1L)
-        TableUtils.createTableIfNotExists(db, tableRequest)
+
+        dynamoTools!!.createTableIfNotExist(dynamoDBMapper!!, db!!, Quiz::class.java, QUIZ_TABLE_NANE)
         TableUtils.waitUntilActive(db, QUIZ_TABLE_NANE)
+
         dynamoDBMapper!!.batchDelete(repository!!.findAll())
 
         hello = repository?.save(Quiz(createdBy = "user", question = EXPECTED_Q, answers = setOf(EXPECTED_A), topics = setOf("A", "B")))
@@ -110,8 +112,8 @@ class QuizRepositoryIntegrationTest {
 
     @Test
     fun findTop5ByIdGreaterThan() {
-        val result1 = repository!!.findTop5ByIdGreaterThan("random_UUID")
-        val result2 = repository!!.findTop5ByIdLessThan("random_UUID")
+        val result1 = repository!!.findTop50ByIdGreaterThan("random_UUID")
+        val result2 = repository!!.findTop50ByIdLessThan("random_UUID")
         assertTrue(result1.isNotEmpty() || result2.isNotEmpty())
     }
 

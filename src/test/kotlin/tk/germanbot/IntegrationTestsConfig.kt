@@ -17,4 +17,7 @@ class IntegrationTestsConfig {
 
     @Bean
     fun mapper(@Autowired db: AmazonDynamoDB): DynamoDBMapper = DynamoDBMapper(db)
+
+    @Bean
+    fun awsProperties(): AwsProperties = AwsProperties()
 }
