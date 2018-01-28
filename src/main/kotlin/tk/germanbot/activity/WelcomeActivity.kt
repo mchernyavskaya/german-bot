@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
+import tk.germanbot.service.QuizTextFileGenerator
 import tk.germanbot.service.QuizTextFileParser
+import tk.germanbot.service.S3Service
 import java.net.URL
 import java.nio.charset.Charset
 import java.util.UUID
@@ -21,14 +23,16 @@ data class WelcomeActivityData(
 class WelcomeActivity(
         @Autowired override val messageGateway: MessageGateway,
         @Autowired private val activityManager: ActivityManager,
-        @Autowired private val quizService: QuizService
+        @Autowired private val quizService: QuizService,
+        @Autowired private val s3Service: S3Service
 ) : Activity<WelcomeActivityData>() {
 
     private val logger = LoggerFactory.getLogger(WelcomeActivity::class.java)
 
     override val helpText = "#q - start quick session (5 questions)\n" +
             "#a - add quiz\n" +
-            "#aa - add multiple quizzes"
+            "#aa - add multiple quizzes" +
+            "#e - export quizzes"
 
     override fun onEvent(event: Event, data: WelcomeActivityData): Boolean {
 
@@ -47,6 +51,11 @@ class WelcomeActivity(
             return true
         }
 
+        if (isTextMessage(event, "#e")) {
+            exportQuizzes(data.userId)
+            return true
+        }
+
         // todo: move to separated activity
         if (event is UserAttachmentEvent) {
             parseQuizFile(event.userId, event.fileUrl)
@@ -56,7 +65,16 @@ class WelcomeActivity(
         return false
     }
 
-    fun parseQuizFile(userId: String, fileUrl: String) {
+    private fun exportQuizzes(userId: String) {
+        // todo: limit export only user's quizzes
+        val quizzes = quizService.getAll()
+        val quizFileContent = QuizTextFileGenerator().generateFile(quizzes)
+        val uploadedFileUrl = s3Service.uploadFile(userId + ".txt", quizFileContent)
+        messageGateway.textMessage(userId, "Exported ${quizzes.size} quizzes:")
+        messageGateway.fileMessage(userId, uploadedFileUrl)
+    }
+
+    private fun parseQuizFile(userId: String, fileUrl: String) {
         val inStream = URL(fileUrl).openStream()
         try {
             val content = IOUtils.toString(inStream, Charset.defaultCharset())

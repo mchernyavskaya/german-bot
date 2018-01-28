@@ -56,6 +56,15 @@ class MessengerGateway(val sendClient: MessengerSendClient) : MessageGateway {
         }
     }
 
+    override fun fileMessage(userId: String, fileUrl: String) {
+        try {
+            this.sendClient.sendFileAttachment(userId, fileUrl)
+        } catch (e: MessengerApiException) {
+            handleSendException(e)
+        } catch (e: MessengerIOException) {
+            handleSendException(e)
+        }
+    }
 
     private fun handleSendException(e: Exception) {
         logger.error("Unable to send message.", e)

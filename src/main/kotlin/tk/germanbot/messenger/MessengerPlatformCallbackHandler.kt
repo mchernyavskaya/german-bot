@@ -157,7 +157,6 @@ class MessengerPlatformCallbackHandler(
         })
     }
 
-
 //    @Throws(MessengerApiException::class, MessengerIOException::class)
 //    private fun sendImageMessage(recipientId: String) {
 //        this.sendClient.sendImageAttachment(recipientId, RESOURCE_URL + "/assets/rift.png")
@@ -178,10 +177,6 @@ class MessengerPlatformCallbackHandler(
 //        this.sendClient.sendVideoAttachment(recipientId, RESOURCE_URL + "/assets/allofus480.mov")
 //    }
 //
-//    @Throws(MessengerApiException::class, MessengerIOException::class)
-//    private fun sendFileMessage(recipientId: String) {
-//        this.sendClient.sendFileAttachment(recipientId, RESOURCE_URL + "/assets/test.txt")
-//    }
 //
 //    @Throws(MessengerApiException::class, MessengerIOException::class)
 //    private fun sendButtonMessage(recipientId: String) {
