@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class QuizValidator {
+    private val punctuation = Regex("\\W+")
+    private val spaces = Regex("\\s+")
 
     fun validate(answerGiven: String, correctAnswers: Set<String>): AnswerValidationResult {
         correctAnswers
@@ -18,12 +20,14 @@ class QuizValidator {
     }
 
     private fun isCorrect(answerGiven: String, correctAnswer: String): Boolean {
-        return answerGiven.equals(correctAnswer, true)
+        val answerGivenFixed = answerGiven.replace(punctuation, "").replace(spaces, " ").trim()
+        val correctAnswerFixed = correctAnswer.replace(punctuation, "").replace(spaces, " ").trim()
+        return answerGivenFixed.equals(correctAnswerFixed, true)
     }
 
     private fun isPartialCorrect(answerGiven: String, correctAnswer: String): Boolean {
-        // todo: do fuzzy check, e.g. diff in word ending is fine
-        return answerGiven.equals(correctAnswer, true)
+        // TODO: do fuzzy check, e.g. diff in word ending is fine
+        return isCorrect(answerGiven, correctAnswer)
     }
 
 }
