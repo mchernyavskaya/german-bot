@@ -1,5 +1,6 @@
 package tk.germanbot.activity
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
@@ -18,6 +19,8 @@ class ActivityManager(
         @Autowired @Lazy private var lessonActivity: LessonActivity,
         @Autowired @Lazy private var quizActivity: QuizActivity,
         @Autowired @Lazy private var addQuizActivity: AddQuizActivity) : EventDispatcher {
+
+    private val logger = LoggerFactory.getLogger(ActivityManager::class.java)
 
     override fun handleEvent(userId: String, event: Event) {
         val storedStack = stateService.getActivityStack(userId)
@@ -50,8 +53,8 @@ class ActivityManager(
         startActivity(quizActivity, QuizActivityData(userId, quizId))
     }
 
-    fun startLessonActivity(userId: String) {
-        startActivity(lessonActivity, LessonActivityData(userId))
+    fun startLessonActivity(userId: String, topics: Set<String>) {
+        startActivity(lessonActivity, LessonActivityData(userId, topics = topics))
     }
 
     fun startAddQuizActivity(userId: String, multiple: Boolean = false) {
@@ -66,6 +69,7 @@ class ActivityManager(
         val activityStack = stateService.getActivityStack(data.userId)
         stateService.saveActivityStack(data.userId, activityStack + data)
 
+        logger.info("Starting activity: ${a::class.java.simpleName} with data: $data")
         a.onStart(data)
         stateService.updateActivityData(data)
 

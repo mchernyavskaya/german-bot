@@ -10,12 +10,16 @@ import org.mockito.Mock
 import org.mockito.runners.MockitoJUnitRunner
 import tk.germanbot.data.Quiz
 import tk.germanbot.data.QuizRepository
+import tk.germanbot.data.QuizTopicRepository
 
 @RunWith(MockitoJUnitRunner::class)
 class DynamoQuizServiceTest {
 
     @Mock
     private var quizRepo: QuizRepository? = null
+
+    @Mock
+    private var quizTopicRepo: QuizTopicRepository? = null
 
     @Mock
     private var quizValidator: QuizValidator? = null
@@ -63,6 +67,33 @@ class DynamoQuizServiceTest {
         Assertions.assertThat(quizCaptor.firstValue.question).isEqualTo("Question with empty topics # ## ##")
         Assertions.assertThat(quizCaptor.firstValue.topics).containsExactly("undefined")
         Assertions.assertThat(quizCaptor.firstValue.answers).containsExactly("answer1")
+    }
+
+    @Test
+    fun randomSelectCanSelectExactCount() {
+        val list = listOf("A", "B", "C")
+        val select1 = service!!.randomSelect(list, 1)
+        Assertions.assertThat(select1).hasSize(1)
+
+        val select2 = service!!.randomSelect(list, 2)
+        Assertions.assertThat(select2).hasSize(2)
+
+        val select3 = service!!.randomSelect(list, 3)
+        Assertions.assertThat(select3).hasSize(3)
+
+        val select4 = service!!.randomSelect(list, 4)
+        Assertions.assertThat(select4).hasSize(3)
+
+        val select5 = service!!.randomSelect(list, 5)
+        Assertions.assertThat(select5).hasSize(3)
+    }
+
+    @Test
+    fun randomSelect10from100() {
+        val ints = (0..100).toList()
+        val select1 = service!!.randomSelect(ints, 10)
+        print(select1)
+        Assertions.assertThat(select1).hasSize(10)
     }
 
 }

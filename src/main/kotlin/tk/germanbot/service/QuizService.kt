@@ -4,12 +4,12 @@ import tk.germanbot.data.Quiz
 import java.util.Random
 
 interface QuizService {
-    fun saveQuiz(userId: String, quiz: Quiz) : Quiz
-    fun saveQuiz(userId: String, quiz: String, answer: String) : Quiz
+    fun saveQuiz(userId: String, quiz: Quiz): Quiz
+    fun saveQuiz(userId: String, quiz: String, answer: String): Quiz
     fun checkAnswer(userId: String, quizId: String, answer: String): AnswerValidationResult
     fun getAnswer(quizId: String): String
     fun getQuiz(questionId: String): Quiz
-    fun getQuestionIds(userId: String, totalQuestions: Int): List<String>
+    fun getQuestionIds(userId: String, topics: Set<String>, totalQuestions: Int): List<String>
     fun getAll(): List<Quiz>
 }
 
