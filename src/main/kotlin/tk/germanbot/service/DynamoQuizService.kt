@@ -40,7 +40,7 @@ class DynamoQuizService(
         val quiz = quizRepo.findOneById(quizId) ?: throw EntityNotFoundException(Quiz::class, quizId)
         quiz.validate()
         val validationResult = quizValidator.validate(answer, quiz.answers!!)
-        statService.updateQuizStat(userId, quizId, validationResult.result != Correctness.INCORRECT)
+        statService.updateQuizStat(userId, quizId, quiz.topics!!, validationResult.result != Correctness.INCORRECT)
         return validationResult
     }
 

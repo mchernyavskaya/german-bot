@@ -17,7 +17,9 @@ import tk.germanbot.data.QUIZ_TOPIC_TABLE_NANE
 import tk.germanbot.data.Quiz
 import tk.germanbot.data.QuizTopic
 import tk.germanbot.data.USER_QUIIZ_STAT_TABLE_NANE
+import tk.germanbot.data.USER_TOPIC_STAT_TABLE_NANE
 import tk.germanbot.data.UserQuizStat
+import tk.germanbot.data.UserTopicStat
 import javax.annotation.PostConstruct
 
 
@@ -65,6 +67,7 @@ class AwsConfig(
         dynamoTools.createTableIfNotExist(dbMapper, dynamoDB, Quiz::class.java, QUIZ_TABLE_NANE)
         dynamoTools.createTableIfNotExist(dbMapper, dynamoDB, QuizTopic::class.java, QUIZ_TOPIC_TABLE_NANE)
         dynamoTools.createTableIfNotExist(dbMapper, dynamoDB, UserQuizStat::class.java, USER_QUIIZ_STAT_TABLE_NANE)
+        dynamoTools.createTableIfNotExist(dbMapper, dynamoDB, UserTopicStat::class.java, USER_TOPIC_STAT_TABLE_NANE)
     }
 
 }
