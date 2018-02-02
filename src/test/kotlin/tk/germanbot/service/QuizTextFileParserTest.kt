@@ -14,7 +14,7 @@ Answer2
 
 """
 
-        val q = QuizTextFileParser("userId", simple).getQuizzes()
+        val q = QuizTextFileParser("id", simple).getQuizzes()
 
         Assertions.assertThat(q).hasSize(1)
         Assertions.assertThat(q.first().question).isEqualTo("Question")
@@ -41,7 +41,7 @@ Answer22
 
 """
 
-        val q = QuizTextFileParser("userId", simple).getQuizzes()
+        val q = QuizTextFileParser("id", simple).getQuizzes()
 
         Assertions.assertThat(q).hasSize(2)
         Assertions.assertThat(q[0].question).isEqualTo("Question1")
@@ -72,7 +72,7 @@ Answer22
 
 """
 
-        val q = QuizTextFileParser("userId", simple).getQuizzes()
+        val q = QuizTextFileParser("id", simple).getQuizzes()
 
         Assertions.assertThat(q).hasSize(2)
         Assertions.assertThat(q[0].id).isEqualTo("123")
@@ -103,7 +103,7 @@ Answer22
 
 """
 
-        val q = QuizTextFileParser("userId", simple).getQuizzes()
+        val q = QuizTextFileParser("id", simple).getQuizzes()
 
         Assertions.assertThat(q).hasSize(2)
         Assertions.assertThat(q[0].question).isEqualTo("Question1")
@@ -134,7 +134,7 @@ Answer22
 
 """
 
-        val q = QuizTextFileParser("userId", simple).getQuizzes()
+        val q = QuizTextFileParser("id", simple).getQuizzes()
 
         Assertions.assertThat(q).hasSize(2)
         Assertions.assertThat(q[0].question).isEqualTo("Question1")

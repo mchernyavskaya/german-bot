@@ -20,7 +20,7 @@ class PolymorphDeserializationTest {
         d2.answeredQuestions = 2
         d2.desiredQuestions = 10
         d2.totalQuestions = 5
-        val d3 = QuizActivityData("userId", "quizId")
+        val d3 = QuizActivityData("id", "quizId")
         d3.result = Correctness.CORRECT
 
         val list: List<ActivityData> = object : ArrayList<ActivityData>(listOf(d1, d2, d3)) {}

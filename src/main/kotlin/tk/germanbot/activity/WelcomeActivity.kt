@@ -9,6 +9,7 @@ import tk.germanbot.service.QuizService
 import tk.germanbot.service.QuizTextFileGenerator
 import tk.germanbot.service.QuizTextFileParser
 import tk.germanbot.service.S3Service
+import tk.germanbot.service.UserStatService
 import java.net.URL
 import java.nio.charset.Charset
 import java.util.UUID
@@ -24,6 +25,7 @@ class WelcomeActivity(
         @Autowired override val messageGateway: MessageGateway,
         @Autowired private val activityManager: ActivityManager,
         @Autowired private val quizService: QuizService,
+        @Autowired private val userStatService: UserStatService,
         @Autowired private val s3Service: S3Service
 ) : Activity<WelcomeActivityData>() {
 
@@ -34,6 +36,7 @@ class WelcomeActivity(
             "#a - add quiz\n" +
             "#aa - add multiple quizzes\n" +
             "#e - export quizzes\n" +
+            "#s - show stat\n" +
             "or upload file with quizzes"
 
     override fun onEvent(event: Event, data: WelcomeActivityData): Boolean {
@@ -64,6 +67,11 @@ class WelcomeActivity(
             return true
         }
 
+        if (isTextMessage(event, "#s")) {
+            showStat(data.userId)
+            return true
+        }
+
         // todo: move to separated activity
         if (event is UserAttachmentEvent) {
             loadQuizzesFromFile(event.userId, event.fileUrl)
@@ -71,6 +79,23 @@ class WelcomeActivity(
         }
 
         return false
+    }
+
+    private fun showStat(userId: String) {
+        val topicStat = userStatService.getTopicStat(userId)
+        if (topicStat?.topics != null && topicStat.topics!!.isNotEmpty()) {
+            messageGateway.textMessage(userId, "Topic: correct/incorrect")
+            val topStat = topicStat.topics?.entries?.
+                    joinToString("\n") { (topic, count) ->
+                        "#$topic: ${count.correctCount}/${count.incorrectCount}"
+                    }?.replace("undefined", "other")
+            if (topStat != null) {
+                messageGateway.textMessage(userId, topStat)
+            }
+            messageGateway.textMessage(userId, "Total: ${topicStat.correctCount}/${topicStat.incorrectCount}")
+        } else {
+            messageGateway.textMessage(userId, "Nothing yet =)")
+        }
     }
 
     private fun exportQuizzes(userId: String) {
