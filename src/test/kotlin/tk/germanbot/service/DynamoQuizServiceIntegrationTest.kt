@@ -68,7 +68,8 @@ class DynamoQuizServiceIntegrationTest {
         quizService!!.saveQuiz("me", Quiz(id = "2", createdBy = "me", question = "Q2", answers = setOf("A"), topics = setOf("B")))
         quizService!!.saveQuiz("me", Quiz(id = "3", createdBy = "me", question = "Q3", answers = setOf("A"), topics = setOf("A", "B")))
         quizService!!.saveQuiz("me", Quiz(id = "4", createdBy = "me", question = "Q4", answers = setOf("A"), topics = setOf("C", "A")))
-        quizService!!.saveQuiz("me", Quiz(id = "5", createdBy = "me", question = "Q5", answers = setOf("A"), topics = setOf("A", "B", "C")))
+        quizService!!.saveQuiz("me", Quiz(isPublished = true, id = "5", createdBy = "NOT_ME", question = "Q5", answers = setOf("A"), topics = setOf("A", "B", "C")))
+        quizService!!.saveQuiz("me", Quiz(id = "6", createdBy = "NOT_ME", question = "Q5", answers = setOf("A"), topics = setOf("A", "B", "C")))
 
         TableUtils.waitUntilActive(db, QUIZ_TOPIC_TABLE_NANE)
     }
@@ -77,28 +78,34 @@ class DynamoQuizServiceIntegrationTest {
     fun getQuestionIdsCanGetByTopics() {
         // all in one method because of heavy setup()
 
-        val questionIds = quizService!!.getQuestionIds("me", setOf("A"), 5)
+        val questionIds = quizService!!.selectQuizzesForUser("me", setOf("A"), 7)
         Assertions.assertThat(questionIds).hasSize(4)
         Assertions.assertThat(questionIds).contains(q1.id, "3", "4", "5")
 
-        val questionIds2 = quizService!!.getQuestionIds("me", setOf("B"), 5)
+        val questionIds2 = quizService!!.selectQuizzesForUser("me", setOf("B"), 7)
         Assertions.assertThat(questionIds2).hasSize(3)
         Assertions.assertThat(questionIds2).contains("2", "3", "5")
 
-        val questionIds3 = quizService!!.getQuestionIds("me", setOf("A", "B"), 5)
+        val questionIds3 = quizService!!.selectQuizzesForUser("me", setOf("A", "B"), 7)
         Assertions.assertThat(questionIds3).hasSize(2)
         Assertions.assertThat(questionIds3).contains("3", "5")
 
-        val questionIds4 = quizService!!.getQuestionIds("me", setOf("A", "C", "B"), 5)
+        val questionIds4 = quizService!!.selectQuizzesForUser("me", setOf("A", "C", "B"), 7)
         Assertions.assertThat(questionIds4).hasSize(1)
         Assertions.assertThat(questionIds4).contains("5")
 
-        val questionIds5 = quizService!!.getQuestionIds("me", setOf("A"), 2)
+        val questionIds5 = quizService!!.selectQuizzesForUser("me", setOf("A"), 2)
         Assertions.assertThat(questionIds5).hasSize(2)
 
-        // if no such topics - return random from all
-        val questionIds6 = quizService!!.getQuestionIds("me", setOf("Z"), 2)
-        Assertions.assertThat(questionIds6).hasSize(2)
+        val questionIds6 = quizService!!.selectQuizzesForUser("me", setOf(), 10)
+        Assertions.assertThat(questionIds6).hasSize(5)
+
+        val questionIds7 = quizService!!.selectQuizzesForUser("me", setOf("Z"), 2)
+        Assertions.assertThat(questionIds7).hasSize(0)
+
+        val questionIds8 = quizService!!.selectQuizzesForUser("somwOne", setOf(), 5)
+        Assertions.assertThat(questionIds8).hasSize(1)
+
     }
 
 }

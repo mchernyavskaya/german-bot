@@ -14,6 +14,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTyped
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator
+import com.amazonaws.services.dynamodbv2.model.Condition
 import com.google.common.collect.Sets
 import org.socialsignin.spring.data.dynamodb.repository.EnableScan
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,6 +23,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Component
 import tk.germanbot.service.EntityValidationException
 import java.util.Date
+import java.util.UUID
 
 
 const val QUIZ_TABLE_NANE = "german_bot_quiz"
@@ -34,7 +37,7 @@ data class Quiz(
 
         @DynamoDBAttribute
         @DynamoDBTyped(S)
-        var date: Date? = Date(),
+        var date: Date = Date(),
 
         @DynamoDBAttribute
         var createdBy: String?,
@@ -46,9 +49,14 @@ data class Quiz(
         var answers: Set<String>?,
 
         @DynamoDBAttribute
-        var topics: Set<String>?
+        var topics: Set<String> = setOf(QuizTopic.UNDEFINED),
+
+        @DynamoDBAttribute
+        var isPublished: Boolean = false
+
 ) {
     fun validate() {
+        if (createdBy == null) throw EntityValidationException(Quiz::class, "CreatedBy is null in $id")
         if (answers == null || answers!!.isEmpty()) throw EntityValidationException(Quiz::class, "No answers for quiz $id")
         if (topics == null || topics!!.isEmpty()) throw EntityValidationException(Quiz::class, "No topics for quiz $id")
     }
@@ -66,13 +74,16 @@ data class QuizTopic(
 ) {
     companion object {
 
+        val UNDEFINED = "**undef**"
+        val PUBLISHED = "**pub**"
+
         fun getAllCombinations(topics: Set<String>): List<String> {
             return Sets.powerSet(topics)
                     .flatMap { set -> setOf(getTopicKey(set)) }
                     .filter(String::isNotBlank)
         }
 
-        fun getTopicKey(set: Set<String>) = set.sorted().joinToString("#")
+        fun getTopicKey(set: Set<String>): String = set.sorted().joinToString("#")
     }
 
 }
@@ -119,6 +130,27 @@ class QuizTopicRepository(
         return mapper.query(QuizTopic::class.java, quizByTopicExpression)
     }
 
+    fun findNRandomQuizIdsByTopics(topics: Set<String>, count: Int): List<QuizTopic> {
+        val random = UUID.randomUUID().toString()
+        val result = getRandomRange(topics, ComparisonOperator.LE, random, count)
+        return if (result.size < count) {
+            result + getRandomRange(topics, ComparisonOperator.GE, random, count - result.size)
+        } else {
+            result
+        }
+    }
+
+    private fun getRandomRange(topics: Set<String>, operator: ComparisonOperator, random: String, count: Int): PaginatedQueryList<QuizTopic> {
+        val quizByTopicExpression = DynamoDBQueryExpression<QuizTopic>()
+                .withHashKeyValues(QuizTopic(topic = QuizTopic.getTopicKey(topics)))
+                .withRangeKeyCondition("quizId",
+                        Condition().withComparisonOperator(operator)
+                                .withAttributeValueList(AttributeValue().withS(random)))
+                .withProjectionExpression("quizId")
+                .withLimit(count)
+        return mapper.query(QuizTopic::class.java, quizByTopicExpression)
+    }
+
     private fun findAll(): List<QuizTopic> {
         return mapper.scan(QuizTopic::class.java, DynamoDBScanExpression())
     }
@@ -133,8 +165,16 @@ class QuizTopicRepository(
     }
 
     private fun generateTopics(quiz: Quiz): List<QuizTopic> {
-        return QuizTopic.getAllCombinations(quiz.topics!!)
-                .map { topic -> QuizTopic(quizId = quiz.id, topic = topic) }
+        return if (quiz.isPublished)
+            QuizTopic.getAllCombinations(quiz.topics!! + QuizTopic.PUBLISHED)
+                    .filter { it.contains(QuizTopic.PUBLISHED) }
+                    .map { topic -> QuizTopic(quizId = quiz.id, topic = topic) }
+        else
+            QuizTopic.getAllCombinations(quiz.topics + quiz.createdBy!!)
+                    .filter { it.contains(quiz.createdBy!!) }
+                    .map { topic -> QuizTopic(quizId = quiz.id, topic = topic) }
+
     }
+
 
 }

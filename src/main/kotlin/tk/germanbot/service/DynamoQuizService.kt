@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import tk.germanbot.data.Quiz
 import tk.germanbot.data.QuizRepository
+import tk.germanbot.data.QuizTopic
 import tk.germanbot.data.QuizTopicRepository
 import java.util.Collections
 import java.util.Random
-import java.util.UUID
 
 @Service
 class DynamoQuizService(
@@ -56,36 +56,29 @@ class DynamoQuizService(
         return quiz
     }
 
-    override fun getQuestionIds(userId: String, topics: Set<String>, totalQuestions: Int): List<String> {
-        if (topics.isEmpty()) {
-            return getQuestionIds(userId, totalQuestions)
-        }
-
-        val quizIdsByTopics = quizTopicRepo.findQuizIdsByTopics(topics)
-        if (quizIdsByTopics.isEmpty()) {
-            return getQuestionIds(userId, totalQuestions)
-        }
-
-        return randomSelect(quizIdsByTopics, totalQuestions)
-                .map{qt -> qt.quizId!!}
+    override fun selectQuizzesForUser(userId: String, topics: Set<String>, totalQuestions: Int): List<String> {
+        val randomQuizSelection = (quizTopicRepo.findNRandomQuizIdsByTopics(topics + QuizTopic.PUBLISHED, totalQuestions * 5)
+                + quizTopicRepo.findNRandomQuizIdsByTopics(topics + userId, totalQuestions * 5))
+        return randomSelect(randomQuizSelection, totalQuestions)
+                .map { qt -> qt.quizId!! }
     }
 
-    private fun getQuestionIds(userId: String, totalQuestions: Int): List<String> {
-        //todo: implement question selection strategy
-        val randomKey = UUID.randomUUID().toString()
-        val qGreater = quizRepo.findTop50ByIdGreaterThan(randomKey)
-        val qLess = if (qGreater.size < totalQuestions) quizRepo.findTop50ByIdLessThan(randomKey) else qGreater
-        val qq = if (qLess.size > qGreater.size) qLess else qGreater
-
-        return randomSelect(qq.toMutableList(), totalQuestions)
-                .map { q -> q.id!! }
-                .toList()
-    }
+//    private fun getQuestionIds(userId: String, totalQuestions: Int): List<String> {
+//        //todo: implement question selection strategy
+//        val randomKey = UUID.randomUUID().toString()
+//        val qGreater = quizRepo.findTop50ByIdGreaterThan(randomKey)
+//        val qLess = if (qGreater.size < totalQuestions) quizRepo.findTop50ByIdLessThan(randomKey) else qGreater
+//        val qq = if (qLess.size > qGreater.size) qLess else qGreater
+//
+//        return randomSelect(qq.toMutableList(), totalQuestions)
+//                .map { q -> q.id!! }
+//                .toList()
+//    }
 
     internal fun <T> randomSelect(quizIdsByTopics: List<T>, count: Int): List<T> {
         val selected = mutableListOf<T>()
         val rnd = Random()
-        for(i in quizIdsByTopics.indices){
+        for (i in quizIdsByTopics.indices) {
             val selectProbability = (count.toDouble() - selected.size) / (quizIdsByTopics.size - i)
             if (rnd.nextDouble() <= selectProbability) {
                 selected.add(quizIdsByTopics[i])
@@ -114,7 +107,7 @@ class DynamoQuizService(
                 .map { it.groupValues[1] }
                 .filter(String::isNotBlank)
                 .toSet()
-                .let { if (it.isEmpty()) setOf("undefined") else it }
+                .let { if (it.isEmpty()) setOf(QuizTopic.UNDEFINED) else it }
 
         val q = topicRegex.replace(question, "").trim()
 

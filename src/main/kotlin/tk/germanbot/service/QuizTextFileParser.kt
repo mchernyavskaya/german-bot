@@ -37,10 +37,16 @@ class QuizTextFileParser(
 
             var answers = setOf<String>()
             var topics = setOf<String>()
+            var isPublished = false
             while (scanner.hasNextLine()) {
                 val answer = scanner.nextLine().trim()
                 if (answer.isBlank()) {
                     break
+                }
+
+                if (answer.equals("!Published", true)) {
+                    isPublished = true
+                    continue
                 }
 
                 if (answer.startsWith("#")) {
@@ -50,7 +56,9 @@ class QuizTextFileParser(
                 }
             }
 
-            quizzes += Quiz(id = id, createdBy = userId, question = question, answers = answers, topics = topics + globalTopics)
+            quizzes += Quiz(id = id, createdBy = userId, question = question,
+                    answers = answers, topics = topics + globalTopics,
+                    isPublished = isPublished)
         }
 
         return quizzes

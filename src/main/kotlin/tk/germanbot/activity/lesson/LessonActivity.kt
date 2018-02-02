@@ -1,6 +1,5 @@
 package tk.germanbot.activity.lesson
 
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import tk.germanbot.activity.Activity
@@ -33,7 +32,7 @@ class LessonActivity(
 ) : Activity<LessonActivityData>() {
 
     override fun onStart(data: LessonActivityData) {
-        data.questionIds = quizService.getQuestionIds(data.userId, data.topics, data.desiredQuestions)
+        data.questionIds = quizService.selectQuizzesForUser(data.userId, data.topics, data.desiredQuestions)
         data.totalQuestions = data.questionIds.size
         if (data.totalQuestions > 0) {
             messageGateway.textMessage(data.userId, "Lets do ${data.totalQuestions} exercises (type #h for hint if you need one)")

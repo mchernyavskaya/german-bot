@@ -8,6 +8,7 @@ import tk.germanbot.activity.ActivityManager
 import tk.germanbot.activity.Event
 import tk.germanbot.activity.UserCommand
 import tk.germanbot.activity.UserTextMessageEvent
+import tk.germanbot.data.QuizTopic
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
 import java.util.UUID
@@ -82,7 +83,7 @@ class AddQuizActivity(
     private fun saveAndEnd(data: AddQuizActivityData) {
         val quiz = quizService.saveQuiz(data.userId, data.question, data.answer)
         val answers = quiz.answers!!.joinToString("\n")
-        val topics = if (quiz.topics!!.first() != "undefined")
+        val topics = if (quiz.topics!!.first() != QuizTopic.UNDEFINED)
             "\n" + quiz.topics!!.joinToString(" ") { "#$it" }
         else
             ""

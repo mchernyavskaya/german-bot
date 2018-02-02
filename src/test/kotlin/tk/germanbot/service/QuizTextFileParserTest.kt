@@ -124,7 +124,7 @@ Question1
 Answer11
 Answer12
 #topic11 #topic12
-
+!Published
 
 Question2
 Answer21
@@ -140,9 +140,11 @@ Answer22
         Assertions.assertThat(q[0].question).isEqualTo("Question1")
         Assertions.assertThat(q[0].answers).containsExactly("Answer11", "Answer12")
         Assertions.assertThat(q[0].topics).containsExactly("topic11", "topic12", "A1")
+        Assertions.assertThat(q[0].isPublished).isTrue()
         Assertions.assertThat(q[1].question).isEqualTo("Question2")
         Assertions.assertThat(q[1].answers).containsExactly("Answer21", "Answer22")
         Assertions.assertThat(q[1].topics).containsExactly("topic21", "topic22", "A1")
+        Assertions.assertThat(q[1].isPublished).isFalse()
 
     }
 
