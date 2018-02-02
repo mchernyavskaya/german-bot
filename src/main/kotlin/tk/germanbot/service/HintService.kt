@@ -4,26 +4,31 @@ import org.springframework.stereotype.Service
 
 @Service
 class HintService {
+    private val PUNCTUATION_RX: Regex = Regex("\\W")
+    private val WHITESPACE_RX: Regex = Regex("\\s+")
+
     /**
      * Create a hint from current value
      * (Opens as many symbols in each word as the second parameter says)
      */
-    fun hint(answer: String, open: Int, mask: String = "_ "): String {
+    fun hint(answer: String, open: Int): String {
+        val mask = "_"
         if (answer.isEmpty() || open <= 0) {
             return answer
         }
         var result = ""
-        val words = answer.split(Regex("\\s+"))
+        val words = answer.split(WHITESPACE_RX)
         words.forEach {
             val wordMask: Array<String?> = arrayOfNulls(it.length)
-            wordMask.fill(mask)
             for ((index, c) in it.withIndex()) {
-                if (index >= open) {
-                    break
+                if (PUNCTUATION_RX.matches("" + c) || index < open) {
+                    wordMask[index] = "" + c
+                } else {
+                    wordMask[index] = mask
                 }
-                wordMask[index] = "" + c
             }
-            result = result.plus("  ").plus(wordMask.joinToString("").trim())
+            val fixedWord = wordMask.joinToString("").replace(Regex(mask), mask + " ").trim()
+            result = result.plus("  ").plus(fixedWord)
         }
         return result.trim()
     }

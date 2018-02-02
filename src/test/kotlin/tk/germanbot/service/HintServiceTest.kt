@@ -25,6 +25,12 @@ class HintServiceTest {
     }
 
     @Test
+    fun hintTwoPunctuation() {
+        val hint = service.hint("Answer!", 2)
+        assertThat(hint).isEqualTo("An_ _ _ _ !")
+    }
+
+    @Test
     fun hintTwoTwoWords() {
         val hint = service.hint("Answer Two", 2)
         assertThat(hint).isEqualTo("An_ _ _ _  Tw_")
@@ -34,6 +40,12 @@ class HintServiceTest {
     fun hintFourTwoWords() {
         val hint = service.hint("Answer Two", 4)
         assertThat(hint).isEqualTo("Answ_ _  Two")
+    }
+
+    @Test
+    fun hintFourTwoWordsPunctuation() {
+        val hint = service.hint("Answer, Two!", 4)
+        assertThat(hint).isEqualTo("Answ_ _ ,  Two!")
     }
 
     @Test
