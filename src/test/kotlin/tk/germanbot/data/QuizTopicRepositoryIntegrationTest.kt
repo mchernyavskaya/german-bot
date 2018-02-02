@@ -58,8 +58,8 @@ class QuizTopicRepositoryIntegrationTest {
         repo!!.saveTopics(q2)
 
         val saved = repo!!.findTopics(q1)
-        Assertions.assertThat(saved).hasSize(3)
-        Assertions.assertThat(saved).contains(QuizTopic("A", q1.id), QuizTopic("B", q1.id), QuizTopic("A#B", q1.id))
+        Assertions.assertThat(saved).hasSize(4)
+        Assertions.assertThat(saved).contains(QuizTopic("me", q1.id), QuizTopic("A#me", q1.id), QuizTopic("B#me", q1.id), QuizTopic("A#B#me", q1.id))
     }
 
     @Test
@@ -68,15 +68,33 @@ class QuizTopicRepositoryIntegrationTest {
         repo!!.saveTopics(q1)
 
         val saved = repo!!.findTopics(q1)
-        Assertions.assertThat(saved).hasSize(3)
-        Assertions.assertThat(saved).contains(QuizTopic("A", q1.id), QuizTopic("B", q1.id), QuizTopic("A#B", q1.id))
+        Assertions.assertThat(saved).hasSize(4)
+        Assertions.assertThat(saved).contains(QuizTopic("me", q1.id), QuizTopic("A#me", q1.id), QuizTopic("B#me", q1.id), QuizTopic("A#B#me", q1.id))
 
         q1.topics = setOf("A", "C")
         repo!!.saveTopics(q1)
 
         val updated = repo!!.findTopics(q1)
-        Assertions.assertThat(updated).hasSize(3)
-        Assertions.assertThat(updated).contains(QuizTopic("A", q1.id), QuizTopic("C", q1.id), QuizTopic("A#C", q1.id))
+        Assertions.assertThat(updated).hasSize(4)
+        Assertions.assertThat(updated).contains(QuizTopic("me", q1.id),QuizTopic("A#me", q1.id), QuizTopic("C#me", q1.id), QuizTopic("A#C#me", q1.id))
+    }
+
+    @Test
+    fun canPublishQuiz() {
+        val q1 = Quiz(id = "q1", createdBy = "me", question = "Q", answers = setOf("A"), topics = setOf("A", "B"))
+        repo!!.saveTopics(q1)
+
+        val saved = repo!!.findTopics(q1)
+        Assertions.assertThat(saved).hasSize(4)
+        Assertions.assertThat(saved).contains(QuizTopic("me", q1.id), QuizTopic("A#me", q1.id), QuizTopic("B#me", q1.id), QuizTopic("A#B#me", q1.id))
+
+        q1.topics = setOf("A", "C")
+        q1.isPublished = true
+        repo!!.saveTopics(q1)
+
+        val updated = repo!!.findTopics(q1)
+        Assertions.assertThat(updated).hasSize(4)
+        Assertions.assertThat(updated).contains(QuizTopic("**pub**", q1.id),QuizTopic("**pub**#A", q1.id), QuizTopic("**pub**#C", q1.id), QuizTopic("**pub**#A#C", q1.id))
     }
 
     @Test
@@ -85,18 +103,48 @@ class QuizTopicRepositoryIntegrationTest {
         repo!!.saveTopics(q1)
         val q2 = Quiz(id = "q2", createdBy = "me", question = "Q2", answers = setOf("A2"), topics = setOf("A", "C"))
         repo!!.saveTopics(q2)
-        val q3 = Quiz(id = "q3", createdBy = "me", question = "Q3", answers = setOf("A3"), topics = setOf("A", "C", "B"))
+        val q3 = Quiz(id = "q3", createdBy = "me", question = "Q3", answers = setOf("A3"), topics = setOf("A", "C", "B"), isPublished = true)
         repo!!.saveTopics(q3)
 
-        val qA = repo!!.findQuizIdsByTopics(setOf("B"))
-        Assertions.assertThat(qA).hasSize(2)
-        Assertions.assertThat(qA).contains(QuizTopic(quizId = q1.id), QuizTopic(quizId = q3.id))
+        val qA = repo!!.findQuizIdsByTopics(setOf("B", "me"))
+        Assertions.assertThat(qA).hasSize(1)
+        Assertions.assertThat(qA).contains(QuizTopic(quizId = q1.id))
 
-        val qAB = repo!!.findQuizIdsByTopics(setOf("B", "A"))
+        val qAB = repo!!.findQuizIdsByTopics(setOf("A", "me"))
         Assertions.assertThat(qAB).hasSize(2)
-        Assertions.assertThat(qAB).contains(QuizTopic(quizId = q1.id), QuizTopic(quizId = q3.id))
+        Assertions.assertThat(qAB).contains(QuizTopic(quizId = q1.id), QuizTopic(quizId = q2.id))
 
-        val qABC = repo!!.findQuizIdsByTopics(setOf("C", "A", "B"))
+        val qABC = repo!!.findQuizIdsByTopics(setOf("C", "A", "B", QuizTopic.PUBLISHED))
+        Assertions.assertThat(qABC).hasSize(1)
+        Assertions.assertThat(qABC).contains(QuizTopic(quizId = q3.id))
+
+        val qMe = repo!!.findQuizIdsByTopics(setOf("me"))
+        Assertions.assertThat(qMe).hasSize(2)
+        Assertions.assertThat(qMe).contains(QuizTopic(quizId = q1.id), QuizTopic(quizId = q2.id))
+
+        val qPub = repo!!.findQuizIdsByTopics(setOf(QuizTopic.PUBLISHED))
+        Assertions.assertThat(qPub).hasSize(1)
+        Assertions.assertThat(qPub).contains(QuizTopic(quizId = q3.id))
+    }
+
+    @Test
+    fun canGetQuizByTopicRandom() {
+        val q1 = Quiz(id = "q1", createdBy = "me", question = "Q", answers = setOf("A"), topics = setOf("A", "B"))
+        repo!!.saveTopics(q1)
+        val q2 = Quiz(id = "q2", createdBy = "me", question = "Q2", answers = setOf("A2"), topics = setOf("A", "C"))
+        repo!!.saveTopics(q2)
+        val q3 = Quiz(id = "q3", createdBy = "me", question = "Q3", answers = setOf("A3"), topics = setOf("A", "C", "B"), isPublished = true)
+        repo!!.saveTopics(q3)
+
+        val qA = repo!!.findNRandomQuizIdsByTopics(setOf("B", "me"), 3)
+        Assertions.assertThat(qA).hasSize(1)
+        Assertions.assertThat(qA).contains(QuizTopic(quizId = q1.id))
+
+        val qAB = repo!!.findNRandomQuizIdsByTopics(setOf("A", "me"), 3)
+        Assertions.assertThat(qAB).hasSize(2)
+        Assertions.assertThat(qAB).contains(QuizTopic(quizId = q1.id), QuizTopic(quizId = q2.id))
+
+        val qABC = repo!!.findNRandomQuizIdsByTopics(setOf("C", "A", "B", QuizTopic.PUBLISHED), 3)
         Assertions.assertThat(qABC).hasSize(1)
         Assertions.assertThat(qABC).contains(QuizTopic(quizId = q3.id))
     }

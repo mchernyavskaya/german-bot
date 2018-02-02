@@ -10,6 +10,7 @@ import org.mockito.Mock
 import org.mockito.runners.MockitoJUnitRunner
 import tk.germanbot.data.Quiz
 import tk.germanbot.data.QuizRepository
+import tk.germanbot.data.QuizTopic
 import tk.germanbot.data.QuizTopicRepository
 
 @RunWith(MockitoJUnitRunner::class)
@@ -52,7 +53,7 @@ class DynamoQuizServiceTest {
 
         Assertions.assertThat(quizCaptor.firstValue.createdBy).isEqualTo("id")
         Assertions.assertThat(quizCaptor.firstValue.question).isEqualTo("Question with no topics")
-        Assertions.assertThat(quizCaptor.firstValue.topics).containsExactly("undefined")
+        Assertions.assertThat(quizCaptor.firstValue.topics).containsExactly(QuizTopic.UNDEFINED)
         Assertions.assertThat(quizCaptor.firstValue.answers).containsExactly("answer1")
     }
 
@@ -65,7 +66,7 @@ class DynamoQuizServiceTest {
 
         Assertions.assertThat(quizCaptor.firstValue.createdBy).isEqualTo("id")
         Assertions.assertThat(quizCaptor.firstValue.question).isEqualTo("Question with empty topics # ## ##")
-        Assertions.assertThat(quizCaptor.firstValue.topics).containsExactly("undefined")
+        Assertions.assertThat(quizCaptor.firstValue.topics).containsExactly(QuizTopic.UNDEFINED)
         Assertions.assertThat(quizCaptor.firstValue.answers).containsExactly("answer1")
     }
 

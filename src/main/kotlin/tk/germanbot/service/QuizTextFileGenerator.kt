@@ -15,6 +15,9 @@ class QuizTextFileGenerator {
             builder.appendln(quiz.question)
             quiz.answers?.forEach { answer -> builder.appendln(answer) }
             builder.appendln(quiz.topics?.sorted()?.joinToString(" ") { "#$it" })
+            if (quiz.isPublished) {
+                builder.appendln("!Published")
+            }
             builder.appendln()
         }
         return builder.toString()
