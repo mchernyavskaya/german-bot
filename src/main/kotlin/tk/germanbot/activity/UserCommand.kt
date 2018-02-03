@@ -1,10 +1,13 @@
 package tk.germanbot.activity
 
-import java.util.*
+import java.util.Arrays
+import java.util.Optional
 
 enum class UserCommand(val textCommand: String) {
+    CORRECT("#correct"),
     END("#end"),
     HINT("#h"),
+    NO("#no"),
     CANCEL("#cancel");
 
     fun eq(str: String): Boolean =

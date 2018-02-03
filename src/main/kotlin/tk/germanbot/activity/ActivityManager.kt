@@ -10,6 +10,7 @@ import tk.germanbot.activity.lesson.LessonActivity
 import tk.germanbot.activity.lesson.LessonActivityData
 import tk.germanbot.activity.lesson.QuizActivity
 import tk.germanbot.activity.lesson.QuizActivityData
+import tk.germanbot.messenger.MessageButton
 import tk.germanbot.service.StateService
 
 @Component
@@ -18,6 +19,7 @@ class ActivityManager(
         @Autowired @Lazy private var welcomeActivity: WelcomeActivity,
         @Autowired @Lazy private var lessonActivity: LessonActivity,
         @Autowired @Lazy private var quizActivity: QuizActivity,
+        @Autowired @Lazy private var confirmationActivity: ConfirmationActivity,
         @Autowired @Lazy private var addQuizActivity: AddQuizActivity) : EventDispatcher {
 
     private val logger = LoggerFactory.getLogger(ActivityManager::class.java)
@@ -57,12 +59,20 @@ class ActivityManager(
         startActivity(lessonActivity, LessonActivityData(userId, topics = topics))
     }
 
+    fun startLessonActivity(userId: String, data: LessonActivityData) {
+        startActivity(lessonActivity, data)
+    }
+
     fun startAddQuizActivity(userId: String, multiple: Boolean = false) {
         startActivity(addQuizActivity, AddQuizActivityData(userId, multiple = multiple))
     }
 
     fun startWelcomeActivity(userId: String): ActivityData {
         return startActivity(welcomeActivity, WelcomeActivityData(userId))
+    }
+
+    fun startConfirmationActivity(userId: String, message: String, buttons: List<MessageButton>): ActivityData {
+        return startActivity(confirmationActivity, ConfirmationActivityData(userId, message, buttons))
     }
 
     private fun <T : ActivityData> startActivity(a: Activity<T>, data: T): T {
@@ -90,7 +100,9 @@ class ActivityManager(
             is LessonActivityData -> lessonActivity
             is WelcomeActivityData -> welcomeActivity
             is AddQuizActivityData -> addQuizActivity
+            is ConfirmationActivityData -> confirmationActivity
             else -> throw Exception("Unknown activity data: " + data.toString())
         }
     }
+
 }

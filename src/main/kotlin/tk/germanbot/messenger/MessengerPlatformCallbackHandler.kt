@@ -131,8 +131,12 @@ class MessengerPlatformCallbackHandler(
 
             logger.info("Received quick reply for userText '{}' with payload '{}'", event.mid, quickReplyPayload)
 
-            UserCommand.parse(quickReplyPayload).ifPresent { button ->
+            val commandOpt = UserCommand.parse(quickReplyPayload)
+            if (commandOpt.isPresent){
+                val button = commandOpt.get()
                 eventDispatcher.handleEvent(event.sender.id, UserButtonEvent(event.sender.id, button))
+            } else {
+                eventDispatcher.handleEvent(event.sender.id, UserTextMessageEvent(event.sender.id, quickReplyPayload))
             }
         })
     }
