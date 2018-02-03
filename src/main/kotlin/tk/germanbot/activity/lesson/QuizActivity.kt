@@ -21,7 +21,7 @@ data class QuizActivityData(
     var result: Correctness = Correctness.INCORRECT
     var isCancelled = false
     var correctAnswers: Set<String> = emptySet()
-    var example :String? = null
+    var example: String? = null
     var lastHint: String? = null
     var hintCount: Int = 0
 }
@@ -42,7 +42,7 @@ class QuizActivity(
             data.correctAnswers = quiz.answers!!
         }
         data.example = quiz.example
-        messageGateway.textMessage(data.userId, "```${quiz.question!!}```")
+        messageGateway.textMessage(data.userId, "```\n${quiz.question!!}\n```")
     }
 
     override fun onEvent(event: Event, data: QuizActivityData): Boolean {
@@ -72,8 +72,13 @@ class QuizActivity(
 
         val valuation = quizService.checkAnswer(data.userId, data.quizId, event.message)
         messageGateway.textMessage(data.userId, valuation.result.getAnswer(valuation.correctAnswer))
-        if (data.example != null){
-            val highlightedExample = data.example!!.replace(valuation.correctAnswer, "*${valuation.correctAnswer}*", true)
+
+        if (data.example != null) {
+            val highlightedExample =
+                    if (!data.example!!.contains("*"))
+                        data.example!!.replace(data.correctAnswers.first(), "*${data.correctAnswers.first()}*", true)
+                    else
+                        data.example!!
             messageGateway.textMessage(data.userId, "For example: _${highlightedExample}_")
         }
 

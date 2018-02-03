@@ -37,7 +37,7 @@ enum class Correctness(private val answers: Array<String>) {
     fun getAnswer(correctAnswer: String): String {
         val bound = this.answers.size
         val index = r.nextInt(bound)
-        return this.answers[index] + " " + correctAnswer
+        return this.answers[index] + if (correctAnswer.isNotBlank()) " *${correctAnswer}*" else ""
     }
 
 }

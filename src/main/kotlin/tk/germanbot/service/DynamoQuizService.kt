@@ -20,10 +20,17 @@ class DynamoQuizService(
     override fun saveQuiz(userId: String, quiz: Quiz): Quiz {
         quiz.validate()
 
+        quiz.question = if (quiz.question != null) removeFormatting(quiz.question!!) else null
+        quiz.answers = quiz.answers?.map(this::removeFormatting)?.toSet()
+
         val quiz = quizRepo.save(quiz)
         // saving of topics must be after quiz since quizId can be auto-generated
         quizTopicRepo.saveTopics(quiz)
         return quiz
+    }
+
+    private fun removeFormatting(question: String): String {
+        return question?.replace(Regex("\\*|_|`"), "")
     }
 
     override fun saveQuiz(userId: String, question: String, answer: String): Quiz {
