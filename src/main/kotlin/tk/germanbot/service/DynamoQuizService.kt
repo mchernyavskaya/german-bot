@@ -19,6 +19,7 @@ class DynamoQuizService(
 
     override fun saveQuiz(userId: String, quiz: Quiz): Quiz {
         quiz.validate()
+
         val quiz = quizRepo.save(quiz)
         // saving of topics must be after quiz since quizId can be auto-generated
         quizTopicRepo.saveTopics(quiz)
@@ -38,21 +39,20 @@ class DynamoQuizService(
 
     override fun checkAnswer(userId: String, quizId: String, answer: String): AnswerValidationResult {
         val quiz = quizRepo.findOneById(quizId) ?: throw EntityNotFoundException(Quiz::class, quizId)
-        quiz.validate()
         val validationResult = quizValidator.validate(answer, quiz.answers!!)
+
         statService.updateQuizStat(userId, quizId, quiz.topics!!, validationResult.result != Correctness.INCORRECT)
+
         return validationResult
     }
 
     override fun getAnswer(quizId: String): String {
         val quiz = quizRepo.findOneById(quizId) ?: throw EntityNotFoundException(Quiz::class, quizId)
-        quiz.validate()
         return quiz.answers!!.first()
     }
 
     override fun getQuiz(quizId: String): Quiz {
         val quiz = quizRepo.findOneById(quizId) ?: throw EntityNotFoundException(Quiz::class, quizId)
-        quiz.validate()
         return quiz
     }
 

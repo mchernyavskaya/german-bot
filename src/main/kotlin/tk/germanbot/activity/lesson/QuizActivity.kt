@@ -2,12 +2,17 @@ package tk.germanbot.activity.lesson
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import tk.germanbot.activity.*
+import tk.germanbot.activity.Activity
+import tk.germanbot.activity.ActivityData
+import tk.germanbot.activity.ActivityManager
+import tk.germanbot.activity.Event
+import tk.germanbot.activity.UserCommand
+import tk.germanbot.activity.UserTextMessageEvent
 import tk.germanbot.service.Correctness
 import tk.germanbot.service.HintService
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
-import java.util.*
+import java.util.UUID
 
 data class QuizActivityData(
         override var userId: String = "",
@@ -16,6 +21,7 @@ data class QuizActivityData(
     var result: Correctness = Correctness.INCORRECT
     var isCancelled = false
     var correctAnswers: Set<String> = emptySet()
+    var example :String? = null
     var lastHint: String? = null
     var hintCount: Int = 0
 }
@@ -35,7 +41,8 @@ class QuizActivity(
         if (quiz.answers != null) {
             data.correctAnswers = quiz.answers!!
         }
-        messageGateway.textMessage(data.userId, quiz.question!!)
+        data.example = quiz.example
+        messageGateway.textMessage(data.userId, "```${quiz.question!!}```")
     }
 
     override fun onEvent(event: Event, data: QuizActivityData): Boolean {
@@ -54,7 +61,7 @@ class QuizActivity(
             data.hintCount++
             data.lastHint = hintService.hint(correctAnswer, data.hintCount)
             if (correctAnswer == data.lastHint) {
-                messageGateway.textMessage(data.userId, "Here's the answer: $correctAnswer")
+                messageGateway.textMessage(data.userId, "Here's the answer: *$correctAnswer*")
                 data.result = Correctness.INCORRECT
                 activityManager.endActivity(this, data)
             } else {
@@ -65,6 +72,11 @@ class QuizActivity(
 
         val valuation = quizService.checkAnswer(data.userId, data.quizId, event.message)
         messageGateway.textMessage(data.userId, valuation.result.getAnswer(valuation.correctAnswer))
+        if (data.example != null){
+            val highlightedExample = data.example!!.replace(valuation.correctAnswer, "*${valuation.correctAnswer}*", true)
+            messageGateway.textMessage(data.userId, "For example: _${highlightedExample}_")
+        }
+
         data.result = valuation.result
         activityManager.endActivity(this, data)
         return true
