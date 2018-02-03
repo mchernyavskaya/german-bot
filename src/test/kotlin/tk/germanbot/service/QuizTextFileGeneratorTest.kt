@@ -12,7 +12,7 @@ class QuizTextFileGeneratorTest {
 
         val g = QuizTextFileGenerator()
         val result = g.generateFile(listOf(
-                Quiz(createdBy = "me", question = "Q1", answers = setOf("A1", "A2"), topics = setOf("T2", "T1")),
+                Quiz(createdBy = "me", question = "Q1", answers = setOf("A1", "A2"), topics = setOf("T2", "T1"), example = "this is example"),
                 Quiz(id = "12345", isPublished = true, createdBy = "me", question = "Q2", answers = setOf("A21", "A22"), topics = setOf("T21", "T22"))
         ))
 
@@ -23,6 +23,7 @@ Q1
 A1
 A2
 #T1 #T2
+E:this is example
 
 ID:12345
 Q2

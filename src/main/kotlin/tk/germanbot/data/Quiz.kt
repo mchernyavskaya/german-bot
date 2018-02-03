@@ -9,7 +9,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperFieldModel.DynamoDBAttributeType.S
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTyped
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList
@@ -47,6 +46,9 @@ data class Quiz(
 
         @DynamoDBAttribute
         var answers: Set<String>?,
+
+        @DynamoDBAttribute
+        var example: String? = null,
 
         @DynamoDBAttribute
         var topics: Set<String> = setOf(QuizTopic.UNDEFINED),
@@ -149,10 +151,6 @@ class QuizTopicRepository(
                 .withProjectionExpression("quizId")
                 .withLimit(count)
         return mapper.query(QuizTopic::class.java, quizByTopicExpression)
-    }
-
-    private fun findAll(): List<QuizTopic> {
-        return mapper.scan(QuizTopic::class.java, DynamoDBScanExpression())
     }
 
     internal fun findTopics(quiz: Quiz): List<QuizTopic> {
