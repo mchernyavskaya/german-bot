@@ -79,7 +79,7 @@ class QuizActivity(
                         data.example!!.replace(data.correctAnswers.first(), "*${data.correctAnswers.first()}*", true)
                     else
                         data.example!!
-            messageGateway.textMessage(data.userId, "For example: _${highlightedExample}_")
+            messageGateway.textMessage(data.userId, "For example: ${highlightedExample}")
         }
 
         data.result = valuation.result

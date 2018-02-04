@@ -53,11 +53,11 @@ springBoot {
 
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
+    compile("org.springframework.boot:spring-boot-starter-cache")
     compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
     compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     compile('commons-io:commons-io:2.5')
     compile('com.google.guava:guava:23.6-jre')
-
     // dynamo db
     compile("org.springframework.data:spring-data-releasetrain:${springDataVersion}")
     compile("com.amazonaws:aws-java-sdk-dynamodb:${dynamoDbVersion}")

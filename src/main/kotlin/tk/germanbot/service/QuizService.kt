@@ -5,12 +5,18 @@ import java.util.Random
 
 interface QuizService {
     fun saveQuiz(userId: String, quiz: Quiz): Quiz
+
     fun saveQuiz(userId: String, quiz: String, answer: String): Quiz
+
     fun checkAnswer(userId: String, quizId: String, answer: String): AnswerValidationResult
+
     fun getAnswer(quizId: String): String
+
     fun getQuiz(questionId: String): Quiz
+
+    fun getQuizzesByTopics(userId: String, topics: Set<String>, myOnly: Boolean = false): List<Quiz>
+
     fun selectQuizzesForUser(userId: String, topics: Set<String>, totalQuestions: Int): List<String>
-    fun getAll(): List<Quiz>
 }
 
 enum class Correctness(private val answers: Array<String>) {

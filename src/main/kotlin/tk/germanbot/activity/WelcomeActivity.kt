@@ -36,19 +36,14 @@ class WelcomeActivity(
             "#q [topics] - start quick quiz\n" +
             "#a - add quiz\n" +
             "#aa - add multiple quizzes\n" +
-            "#e - export quizzes\n" +
+            "#e [my] [topics] - export quizzes\n" +
             "#s - show stat\n" +
             "or upload file with quizzes"
 
     override fun onEvent(event: Event, data: WelcomeActivityData): Boolean {
 
         if (isTextMessage(event, "#q")) {
-            val topics = (event as UserTextMessageEvent).message
-                    .substring(2)
-                    .trim()
-                    .split("\\s+")
-                    .filter(String::isNotBlank)
-                    .toSet()
+            val topics = extractParams(event)
             activityManager.startLessonActivity(data.userId, topics)
             return true
         }
@@ -64,7 +59,8 @@ class WelcomeActivity(
         }
 
         if (isTextMessage(event, "#e")) {
-            exportQuizzes(data.userId)
+            val topics = extractParams(event)
+            exportQuizzes(data.userId, topics)
             return true
         }
 
@@ -80,6 +76,20 @@ class WelcomeActivity(
         }
 
         return false
+    }
+
+    private fun extractParams(event: Event): Set<String> {
+        val message = (event as UserTextMessageEvent).message
+        if (message.indexOf(" ") < 0) {
+            return setOf()
+        }
+
+        return message
+                .substring(message.indexOf(" "))
+                .trim()
+                .split("\\s+")
+                .filter(String::isNotBlank)
+                .toSet()
     }
 
     private fun showStat(userId: String) {
@@ -99,9 +109,9 @@ class WelcomeActivity(
         }
     }
 
-    private fun exportQuizzes(userId: String) {
-        // todo: limit export to only user's quizzes
-        val quizzes = quizService.getAll()
+    private fun exportQuizzes(userId: String, topics: Set<String>) {
+        val quizzes = quizService.getQuizzesByTopics(userId, topics - "my", topics.contains("my"))
+
         val quizFileContent = QuizTextFileGenerator().generateFile(quizzes)
         val uploadedFileUrl = s3Service.uploadFile(userId + ".txt", quizFileContent)
         messageGateway.textMessage(userId, "Exported ${quizzes.size} quizzes:")

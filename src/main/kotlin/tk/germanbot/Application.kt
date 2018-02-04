@@ -4,10 +4,12 @@ import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRep
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
 
 @SpringBootApplication
+@EnableCaching
 @ComponentScan(excludeFilters = arrayOf(
         ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value =  ConsoleConfig::class),
         ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value =  ConsoleApplication::class)

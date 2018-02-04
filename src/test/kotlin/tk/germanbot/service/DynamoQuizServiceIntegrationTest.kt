@@ -108,4 +108,26 @@ class DynamoQuizServiceIntegrationTest {
 
     }
 
+    @Test
+    fun getQuizzesByTopicsCanGetQuizzes() {
+        val questions = quizService!!.getQuizzesByTopics("me", setOf("A"))
+        Assertions.assertThat(questions).hasSize(4)
+        Assertions.assertThat(questions.map(Quiz::id)).contains(q1.id, "3", "4", "5")
+
+        val questionIds2 = quizService!!.getQuizzesByTopics("me", setOf("B"))
+        Assertions.assertThat(questionIds2).hasSize(3)
+        Assertions.assertThat(questionIds2.map(Quiz::id)).contains("2", "3", "5")
+
+        val questionIds3 = quizService!!.getQuizzesByTopics("me", setOf("A", "B"))
+        Assertions.assertThat(questionIds3).hasSize(2)
+        Assertions.assertThat(questionIds3.map(Quiz::id)).contains("3", "5")
+
+        val questionIds4 = quizService!!.getQuizzesByTopics("me", setOf("A", "C", "B"))
+        Assertions.assertThat(questionIds4).hasSize(1)
+        Assertions.assertThat(questionIds4.map(Quiz::id)).contains("5")
+
+        val questions5 = quizService!!.getQuizzesByTopics("me", setOf("A"), true)
+        Assertions.assertThat(questions5).hasSize(3)
+        Assertions.assertThat(questions5.map(Quiz::id)).contains(q1.id, "3", "4")
+    }
 }

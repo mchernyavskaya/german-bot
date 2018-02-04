@@ -99,8 +99,17 @@ class DynamoQuizService(
         return selected
     }
 
-    override fun getAll(): List<Quiz> {
-        return quizRepo.findAll()
+    override fun getQuizzesByTopics(userId: String, topics: Set<String>, myOnly: Boolean): List<Quiz> {
+        val publishedQuiz = if (!myOnly)
+            quizTopicRepo.findQuizIdsByTopics(topics + QuizTopic.PUBLISHED).toSet()
+        else
+            setOf()
+
+        val myQuiz = quizTopicRepo.findQuizIdsByTopics(topics + userId).toSet()
+
+        return (myQuiz + publishedQuiz)
+                .mapNotNull { quizTopic -> quizRepo.findOneById(quizTopic.quizId!!) }
+                .toList()
     }
 
     private data class ParsedTopics(

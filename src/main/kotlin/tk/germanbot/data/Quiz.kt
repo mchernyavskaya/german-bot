@@ -18,6 +18,8 @@ import com.amazonaws.services.dynamodbv2.model.Condition
 import com.google.common.collect.Sets
 import org.socialsignin.spring.data.dynamodb.repository.EnableScan
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Component
 import tk.germanbot.service.EntityValidationException
@@ -92,10 +94,13 @@ data class QuizTopic(
 
 @EnableScan
 interface QuizRepository : CrudRepository<Quiz, String> {
+
+    @CacheEvict(value = "quiz", key = "#result?.id")
     fun save(quiz: Quiz): Quiz
 
     override fun findAll(): List<Quiz>
 
+    @Cacheable(value = "quiz")
     fun findOneById(id: String): Quiz?
 
     fun findByTopicsContaining(topics: String): List<Quiz>
