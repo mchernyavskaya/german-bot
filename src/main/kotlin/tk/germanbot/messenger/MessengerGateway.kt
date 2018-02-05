@@ -9,6 +9,14 @@ import org.slf4j.LoggerFactory
 import tk.germanbot.activity.UserCommand
 import tk.germanbot.service.MessageGateway
 
+class MessageButton(
+        val caption: String,
+        val action: String
+) {
+    constructor(caption: String, command: UserCommand)
+            : this(caption, command.textCommand)
+}
+
 class MessengerGateway(val sendClient: MessengerSendClient) : MessageGateway {
 
     private val logger = LoggerFactory.getLogger(MessengerGateway::class.java)
@@ -30,6 +38,21 @@ class MessengerGateway(val sendClient: MessengerSendClient) : MessageGateway {
 
         try {
             this.sendClient.sendTextMessage(userId, message, quickReplies)
+        } catch (e: MessengerApiException) {
+            handleSendException(e)
+        } catch (e: MessengerIOException) {
+            handleSendException(e)
+        }
+    }
+
+    override fun messageWithButtons(userId: String, message: String, buttons: List<MessageButton>) {
+        val quickReplies = QuickReply.newListBuilder();
+        buttons.forEach { button ->
+            quickReplies.addTextQuickReply(button.caption, button.action).toList()
+        }
+
+        try {
+            this.sendClient.sendTextMessage(userId, message, quickReplies.build())
         } catch (e: MessengerApiException) {
             handleSendException(e)
         } catch (e: MessengerIOException) {

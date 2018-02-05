@@ -9,7 +9,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperFieldModel.DynamoDBAttributeType.S
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTyped
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList
@@ -19,6 +18,8 @@ import com.amazonaws.services.dynamodbv2.model.Condition
 import com.google.common.collect.Sets
 import org.socialsignin.spring.data.dynamodb.repository.EnableScan
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Component
 import tk.germanbot.service.EntityValidationException
@@ -47,6 +48,9 @@ data class Quiz(
 
         @DynamoDBAttribute
         var answers: Set<String>?,
+
+        @DynamoDBAttribute
+        var example: String? = null,
 
         @DynamoDBAttribute
         var topics: Set<String> = setOf(QuizTopic.UNDEFINED),
@@ -90,10 +94,13 @@ data class QuizTopic(
 
 @EnableScan
 interface QuizRepository : CrudRepository<Quiz, String> {
+
+    @CacheEvict(value = "quiz", key = "#result?.id")
     fun save(quiz: Quiz): Quiz
 
     override fun findAll(): List<Quiz>
 
+    @Cacheable(value = "quiz")
     fun findOneById(id: String): Quiz?
 
     fun findByTopicsContaining(topics: String): List<Quiz>
@@ -149,10 +156,6 @@ class QuizTopicRepository(
                 .withProjectionExpression("quizId")
                 .withLimit(count)
         return mapper.query(QuizTopic::class.java, quizByTopicExpression)
-    }
-
-    private fun findAll(): List<QuizTopic> {
-        return mapper.scan(QuizTopic::class.java, DynamoDBScanExpression())
     }
 
     internal fun findTopics(quiz: Quiz): List<QuizTopic> {

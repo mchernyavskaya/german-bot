@@ -61,6 +61,7 @@ ID: 123
 Question1
 Answer11
 Answer12
+E:example1
 #topic11 #topic12
 
 id:456
@@ -68,6 +69,7 @@ Question2
 Answer21
 Answer22
 #topic21 #topic22
+E:  example2
 
 
 """
@@ -79,10 +81,12 @@ Answer22
         Assertions.assertThat(q[0].question).isEqualTo("Question1")
         Assertions.assertThat(q[0].answers).containsExactly("Answer11", "Answer12")
         Assertions.assertThat(q[0].topics).containsExactly("topic11", "topic12")
+        Assertions.assertThat(q[0].example).isEqualTo("example1")
         Assertions.assertThat(q[1].id).isEqualTo("456")
         Assertions.assertThat(q[1].question).isEqualTo("Question2")
         Assertions.assertThat(q[1].answers).containsExactly("Answer21", "Answer22")
         Assertions.assertThat(q[1].topics).containsExactly("topic21", "topic22")
+        Assertions.assertThat(q[1].example).isEqualTo("example2")
 
     }
 

@@ -19,10 +19,18 @@ class DynamoQuizService(
 
     override fun saveQuiz(userId: String, quiz: Quiz): Quiz {
         quiz.validate()
+
+        quiz.question = if (quiz.question != null) removeFormatting(quiz.question!!) else null
+        quiz.answers = quiz.answers?.map(this::removeFormatting)?.toSet()
+
         val quiz = quizRepo.save(quiz)
         // saving of topics must be after quiz since quizId can be auto-generated
         quizTopicRepo.saveTopics(quiz)
         return quiz
+    }
+
+    private fun removeFormatting(question: String): String {
+        return question?.replace(Regex("\\*|_|`"), "")
     }
 
     override fun saveQuiz(userId: String, question: String, answer: String): Quiz {
@@ -38,21 +46,20 @@ class DynamoQuizService(
 
     override fun checkAnswer(userId: String, quizId: String, answer: String): AnswerValidationResult {
         val quiz = quizRepo.findOneById(quizId) ?: throw EntityNotFoundException(Quiz::class, quizId)
-        quiz.validate()
         val validationResult = quizValidator.validate(answer, quiz.answers!!)
+
         statService.updateQuizStat(userId, quizId, quiz.topics!!, validationResult.result != Correctness.INCORRECT)
+
         return validationResult
     }
 
     override fun getAnswer(quizId: String): String {
         val quiz = quizRepo.findOneById(quizId) ?: throw EntityNotFoundException(Quiz::class, quizId)
-        quiz.validate()
         return quiz.answers!!.first()
     }
 
     override fun getQuiz(quizId: String): Quiz {
         val quiz = quizRepo.findOneById(quizId) ?: throw EntityNotFoundException(Quiz::class, quizId)
-        quiz.validate()
         return quiz
     }
 
@@ -92,8 +99,17 @@ class DynamoQuizService(
         return selected
     }
 
-    override fun getAll(): List<Quiz> {
-        return quizRepo.findAll()
+    override fun getQuizzesByTopics(userId: String, topics: Set<String>, myOnly: Boolean): List<Quiz> {
+        val publishedQuiz = if (!myOnly)
+            quizTopicRepo.findQuizIdsByTopics(topics + QuizTopic.PUBLISHED).toSet()
+        else
+            setOf()
+
+        val myQuiz = quizTopicRepo.findQuizIdsByTopics(topics + userId).toSet()
+
+        return (myQuiz + publishedQuiz)
+                .mapNotNull { quizTopic -> quizRepo.findOneById(quizTopic.quizId!!) }
+                .toList()
     }
 
     private data class ParsedTopics(

@@ -6,16 +6,19 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import tk.germanbot.activity.ActivityManager
 import tk.germanbot.activity.UserTextMessageEvent
+import tk.germanbot.messenger.MessageButton
 import tk.germanbot.service.MessageGateway
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 @SpringBootApplication
+@EnableCaching
 @EnableDynamoDBRepositories(basePackages = arrayOf("tk.germanbot.data"))
 @EnableConfigurationProperties(MessengerProperties::class)
 @Import(ConsoleConfig::class)
@@ -45,21 +48,26 @@ class ConsoleConfig {
     fun msgGateway(): MessageGateway
             = object : MessageGateway {
 
+        override fun messageWithButtons(userId: String, message: String, buttons: List<MessageButton>) {
+            println(message)
+            println("[" + buttons.map(MessageButton::action).joinToString(" ") + "]")
+        }
+
         override fun fileMessage(userId: String, fileUrl: String) {
-            System.out.println(fileUrl)
+            println(fileUrl)
         }
 
         override fun genericMessage(userId: String, title: String, subtitle: String) {
-            System.out.println(title)
-            System.out.println("->" + subtitle)
+            println(title)
+            println("->" + subtitle)
         }
 
         override fun textMessage(userId: String, message: String) {
-            System.out.println(message)
+            println(message)
         }
 
         override fun messageWithEndButton(userId: String, message: String) {
-            System.out.println(message + " [Cancel]")
+            println(message + " [Cancel]")
         }
 
     }

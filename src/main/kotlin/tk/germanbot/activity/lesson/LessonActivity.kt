@@ -5,7 +5,10 @@ import org.springframework.stereotype.Component
 import tk.germanbot.activity.Activity
 import tk.germanbot.activity.ActivityData
 import tk.germanbot.activity.ActivityManager
+import tk.germanbot.activity.ConfirmationActivityData
 import tk.germanbot.activity.Event
+import tk.germanbot.activity.UserCommand
+import tk.germanbot.messenger.MessageButton
 import tk.germanbot.service.Correctness
 import tk.germanbot.service.MessageGateway
 import tk.germanbot.service.QuizService
@@ -32,13 +35,18 @@ class LessonActivity(
 ) : Activity<LessonActivityData>() {
 
     override fun onStart(data: LessonActivityData) {
-        data.questionIds = quizService.selectQuizzesForUser(data.userId, data.topics, data.desiredQuestions)
+        if (data.questionIds == null || data.questionIds.isEmpty()) {
+            data.questionIds = quizService.selectQuizzesForUser(data.userId, data.topics, data.desiredQuestions)
+        }
+
         data.totalQuestions = data.questionIds.size
+
         if (data.totalQuestions > 0) {
             messageGateway.textMessage(data.userId, "Lets do ${data.totalQuestions} exercises (type #h for hint if you need one)")
             activityManager.startQuizActivity(data.userId, data.questionIds[0])
         } else {
-            messageGateway.textMessage(data.userId, "Sorry, we have no questions yet! Please add some.")
+            messageGateway.textMessage(data.userId, "Sorry, we have no questions on this topic yet! Please add some.")
+            activityManager.endActivity(this, data)
             activityManager.startWelcomeActivity(data.userId)
         }
     }
@@ -48,6 +56,20 @@ class LessonActivity(
     }
 
     override fun onSubActivityFinished(data: LessonActivityData, subActivityData: ActivityData) {
+        if (subActivityData is ConfirmationActivityData) {
+            activityManager.endActivity(this, data)
+
+            if (UserCommand.CORRECT == subActivityData.userCommand) {
+                val retry = LessonActivityData(data.userId, topics = data.topics)
+                retry.questionIds = data.wrongAnswers
+                retry.totalQuestions = data.wrongAnswers.size
+                retry.desiredQuestions = data.wrongAnswers.size
+                activityManager.startLessonActivity(data.userId, retry)
+            }
+
+            return
+        }
+
         if (subActivityData !is QuizActivityData) {
             return
         }
@@ -58,8 +80,8 @@ class LessonActivity(
             return
         }
 
-        if (subActivityData.result == Correctness.CORRECT){
-            data.correctAnswers  = data.correctAnswers + subActivityData.quizId
+        if (subActivityData.result == Correctness.CORRECT) {
+            data.correctAnswers = data.correctAnswers + subActivityData.quizId
         } else {
             data.wrongAnswers = data.wrongAnswers + subActivityData.quizId
         }
@@ -70,6 +92,15 @@ class LessonActivity(
             activityManager.startQuizActivity(data.userId, data.questionIds[data.answeredQuestions])
         } else {
             messageGateway.textMessage(data.userId, "All done! ${data.correctAnswers.size} of ${data.answeredQuestions} correct!")
+
+            if (data.correctAnswers.size < data.answeredQuestions) {
+                activityManager.startConfirmationActivity(data.userId, "Correct errors?", listOf(
+                        MessageButton("Correct", UserCommand.CORRECT),
+                        MessageButton("End quiz", UserCommand.END)
+                ))
+                return
+            }
+
             activityManager.endActivity(this, data)
         }
     }
