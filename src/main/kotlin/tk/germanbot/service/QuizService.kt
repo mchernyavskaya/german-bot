@@ -21,10 +21,10 @@ interface QuizService {
 
 enum class Correctness(private val answers: Array<String>) {
     CORRECT(arrayOf(
-            "Correct!",
-            "Yes! Well done!",
-            "Absolutely right!",
-            "Cool! Have a cookie!"
+            "Correct! \uD83D\uDC4D",
+            "Yes! Well done! \uD83D\uDC4D",
+            "Absolutely right! \uD83D\uDC4D",
+            "Cool! Have a cookie! \uD83C\uDF6A"
     )),
     PARTIALLY_CORRECT(arrayOf(
             "Not quite. Expected answer:",

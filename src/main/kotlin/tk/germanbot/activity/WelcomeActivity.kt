@@ -95,15 +95,19 @@ class WelcomeActivity(
     private fun showStat(userId: String) {
         val topicStat = userStatService.getTopicStat(userId)
         if (topicStat?.topics != null && topicStat.topics!!.isNotEmpty()) {
-            messageGateway.textMessage(userId, "Topic: correct/incorrect")
+
             val topStat = topicStat.topics?.entries?.
+                    sortedWith(compareByDescending { (topic, count) -> count.totalCount })?.
+                    take(10)?.
                     joinToString("\n") { (topic, count) ->
-                        "#$topic: ${count.correctCount}/${count.incorrectCount}"
+                        "#$topic: ${count.correctCount} / ${count.incorrectCount}"
                     }?.replace(QuizTopic.UNDEFINED, "other")
+
+            messageGateway.textMessage(userId, "Topic: correct / incorrect")
             if (topStat != null) {
                 messageGateway.textMessage(userId, topStat)
             }
-            messageGateway.textMessage(userId, "Total: ${topicStat.correctCount}/${topicStat.incorrectCount}")
+            messageGateway.textMessage(userId, "Total: ${topicStat.correctCount} / ${topicStat.incorrectCount}")
         } else {
             messageGateway.textMessage(userId, "Nothing yet =)")
         }

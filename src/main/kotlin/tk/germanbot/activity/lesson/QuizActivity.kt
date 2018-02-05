@@ -42,7 +42,7 @@ class QuizActivity(
             data.correctAnswers = quiz.answers!!
         }
         data.example = quiz.example
-        messageGateway.textMessage(data.userId, "```\n${quiz.question!!}\n```")
+        messageGateway.textMessage(data.userId, "❓ ${quiz.question!!}")
     }
 
     override fun onEvent(event: Event, data: QuizActivityData): Boolean {
@@ -65,7 +65,7 @@ class QuizActivity(
                 data.result = Correctness.INCORRECT
                 activityManager.endActivity(this, data)
             } else {
-                messageGateway.textMessage(data.userId, "Hint: ${data.lastHint.toString()}")
+                messageGateway.textMessage(data.userId, "\uD83D\uDCA1 ${data.lastHint.toString()}")
             }
             return true
         }
