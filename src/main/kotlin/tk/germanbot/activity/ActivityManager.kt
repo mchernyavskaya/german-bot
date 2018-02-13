@@ -63,8 +63,8 @@ class ActivityManager(
         startActivity(lessonActivity, data)
     }
 
-    fun startAddQuizActivity(userId: String, multiple: Boolean = false) {
-        startActivity(addQuizActivity, AddQuizActivityData(userId, multiple = multiple))
+    fun startAddQuizActivity(userId: String, multiple: Boolean = false, defaultTopics: Set<String> = setOf()) {
+        startActivity(addQuizActivity, AddQuizActivityData(userId, multiple = multiple, defaultTopics = defaultTopics))
     }
 
     fun startWelcomeActivity(userId: String): ActivityData {
