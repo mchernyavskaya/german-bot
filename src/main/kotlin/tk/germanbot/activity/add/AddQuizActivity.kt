@@ -17,6 +17,7 @@ data class AddQuizActivityData(
         override var userId: String = "",
         var question: String = "",
         var answer: String = "",
+        var defaultTopics: Set<String> = setOf(),
         var multiple: Boolean = false) : ActivityData {
     override var id: String = UUID.randomUUID().toString()
     var isCancelled = false
@@ -81,7 +82,9 @@ class AddQuizActivity(
     }
 
     private fun saveAndEnd(data: AddQuizActivityData) {
-        val quiz = quizService.saveQuiz(data.userId, data.question, data.answer)
+        val topicStr = data.defaultTopics.joinToString(" ") { "#$it" }
+
+        val quiz = quizService.saveQuiz(data.userId, data.question + " " + topicStr, data.answer)
         val answers = quiz.answers!!.joinToString("\n")
         val topics = if (quiz.topics!!.first() != QuizTopic.UNDEFINED)
             "\n" + quiz.topics!!.joinToString(" ") { "#$it" }
@@ -91,7 +94,8 @@ class AddQuizActivity(
         if (!data.multiple) {
             activityManager.endActivity(this, data)
         } else {
-            messageGateway.textMessage(data.userId, "Next question?")
+            val topHint = if (data.defaultTopics.isNotEmpty()) " ($topicStr)" else ""
+            messageGateway.textMessage(data.userId, "Next question?$topHint")
             data.clean()
         }
     }

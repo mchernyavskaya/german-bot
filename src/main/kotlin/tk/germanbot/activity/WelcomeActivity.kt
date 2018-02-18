@@ -54,7 +54,8 @@ class WelcomeActivity(
         }
 
         if (isTextMessage(event, "#aa")) {
-            activityManager.startAddQuizActivity(data.userId, true)
+            val topics = extractParams(event)
+            activityManager.startAddQuizActivity(data.userId, true, topics)
             return true
         }
 
@@ -87,7 +88,7 @@ class WelcomeActivity(
         return message
                 .substring(message.indexOf(" "))
                 .trim()
-                .split("\\s+")
+                .split("\\s+".toRegex())
                 .filter(String::isNotBlank)
                 .toSet()
     }

@@ -3,6 +3,8 @@
 docker stop germanbot
 docker pull juntacr/tk.germanbot
 
+source setenv.sh
+
 docker run --rm -p8080:8080 --name germanbot \
 -e MESSENGER_VERIFY_TOKEN=$MESSENGER_VERIFY_TOKEN \
 -e MESSENGER_APP_SECRET=$MESSENGER_APP_SECRET \
