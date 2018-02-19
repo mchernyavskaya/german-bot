@@ -17,6 +17,8 @@ interface QuizService {
     fun getQuizzesByTopics(userId: String, topics: Set<String>, myOnly: Boolean = false): List<Quiz>
 
     fun selectQuizzesForUser(userId: String, topics: Set<String>, totalQuestions: Int): List<String>
+
+    fun getTopicsToQuizCount(userId: String) :Map<String, Int>
 }
 
 enum class Correctness(private val answers: Array<String>) {

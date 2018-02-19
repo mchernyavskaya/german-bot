@@ -129,5 +129,9 @@ class DynamoQuizServiceIntegrationTest {
         val questions5 = quizService!!.getQuizzesByTopics("me", setOf("A"), true)
         Assertions.assertThat(questions5).hasSize(3)
         Assertions.assertThat(questions5.map(Quiz::id)).contains(q1.id, "3", "4")
+
+        val questions6 = quizService!!.getQuizzesByTopics("me", setOf(), false)
+        Assertions.assertThat(questions6).hasSize(5)
+        Assertions.assertThat(questions6.map(Quiz::id)).contains(q1.id, "2", "3", "4", "5")
     }
 }

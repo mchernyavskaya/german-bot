@@ -35,9 +35,10 @@ class WelcomeActivity(
     override val helpText = "Now you can:" +
             "#q [topics] - start quick quiz\n" +
             "#a - add quiz\n" +
-            "#aa - add multiple quizzes\n" +
+            "#aa [topics] - add multiple quizzes\n" +
             "#e [my] [topics] - export quizzes\n" +
-            "#s - show stat\n" +
+            "#stat - show stat\n" +
+            "#topics - show available topics\n" +
             "or upload file with quizzes"
 
     override fun onEvent(event: Event, data: WelcomeActivityData): Boolean {
@@ -65,8 +66,13 @@ class WelcomeActivity(
             return true
         }
 
-        if (isTextMessage(event, "#s")) {
+        if (isTextMessage(event, "#stat")) {
             showStat(data.userId)
+            return true
+        }
+
+        if (isTextMessage(event, "#topics")) {
+            showTopics(data.userId)
             return true
         }
 
@@ -93,16 +99,26 @@ class WelcomeActivity(
                 .toSet()
     }
 
+    fun showTopics(userId: String) {
+        messageGateway.textMessage(userId, "Topic: quiz count")
+        val tops = quizService.getTopicsToQuizCount(userId).entries
+                .sortedByDescending { it.value }
+                .joinToString(separator = "\n") { "#${it.key}: ${it.value}" }
+                .replace(QuizTopic.UNDEFINED, "other")
+        messageGateway.textMessage(userId, tops)
+    }
+
     private fun showStat(userId: String) {
         val topicStat = userStatService.getTopicStat(userId)
         if (topicStat?.topics != null && topicStat.topics!!.isNotEmpty()) {
 
             val topStat = topicStat.topics?.entries?.
-                    sortedWith(compareByDescending { (topic, count) -> count.totalCount })?.
-                    take(10)?.
-                    joinToString("\n") { (topic, count) ->
+                    sortedWith(compareByDescending { (topic, count) -> count.totalCount })
+                    ?.take(10)
+                    ?.joinToString("\n") { (topic, count) ->
                         "#$topic: ${count.correctCount} / ${count.incorrectCount}"
-                    }?.replace(QuizTopic.UNDEFINED, "other")
+                    }
+                    ?.replace(QuizTopic.UNDEFINED, "other")
 
             messageGateway.textMessage(userId, "Topic: correct / incorrect")
             if (topStat != null) {

@@ -17,6 +17,13 @@ class DynamoQuizService(
         @Autowired private val statService: UserStatService
 ) : QuizService {
 
+    override fun getTopicsToQuizCount(userId: String): Map<String, Int> {
+        return getQuizzesByTopics(userId, setOf(), false)
+                .flatMap { it.topics }
+                .groupingBy { it }
+                .eachCount()
+    }
+
     override fun saveQuiz(userId: String, quiz: Quiz): Quiz {
         quiz.validate()
 
@@ -99,6 +106,10 @@ class DynamoQuizService(
         return selected
     }
 
+    /***
+     * Returns list of user's quizzes and published quizzes by topics.
+     * If topics list in empty return all quizzes.
+     */
     override fun getQuizzesByTopics(userId: String, topics: Set<String>, myOnly: Boolean): List<Quiz> {
         val publishedQuiz = if (!myOnly)
             quizTopicRepo.findQuizIdsByTopics(topics + QuizTopic.PUBLISHED).toSet()
